@@ -13,6 +13,11 @@ class Board:
         """
         return self.board[row][column]
 
+    def print_board(self):
+        """Prints the board list row by row, space-separated."""
+        for row in self.board:
+            print("\t".join([str(i) for i in row]))
+
 
 class Piece:
     """
@@ -21,7 +26,9 @@ class Piece:
     The colour attribute is a Boolean: True = white, False = black.
     """
 
-    def __init__(self, value, colour):
+    def __init__(self, row, column, value, colour):
+        self.row = row
+        self.column = column
         self.value = value
         self.colour = colour
 
@@ -35,5 +42,57 @@ class Piece:
     def generate_moves(self):
         """
         Generates the moves that the piece can make. Implemented differently
-        by each subclass.
+        by each subclass. If the piece is white, it is moving upwards, else
+        it is moving downwards on the board.
         """
+
+
+class Game:
+    """Controls the mechanisms of the game"""
+
+    def __init__(self):
+        self.board = Board()
+
+    def input_move(self):
+        """
+        Takes input for a move. This is done by taking input for the current
+        square that the piece to be moved is on, and the square where the piece
+        is to be moved.
+        """
+        current_row, current_column = map(int, input("Piece (y x): ").split())
+        new_row, new_column = map(int, input("Square (y x): ").split())
+
+        return ((current_row, current_column), (new_row, new_column))
+
+
+class Pawn(Piece):
+    """Piece with value 1."""
+
+    def __init__(self, row, column, colour):
+        super().__init__(row, column, 1, colour)
+        self.has_moved = False
+        self.direction = 1 if self.colour else -1
+
+    def generate_moves(self):
+        """
+        Pawns can move 1 square forward and 2 squares forward if they have not
+        yet moved.
+        """
+        moves = []
+
+        moves.append((self.row - self.direction, self.column))
+        if not self.has_moved:
+            moves.append((self.row - 2 * self.direction, self.column))
+
+        return moves
+
+    def get_attacked_squares(self):
+        """
+        Pawns can move 1 square forward diagonally when they take an opponent's
+        piece.
+        """
+        moves = [
+            (self.row - self.direction, self.column - 1),
+            (self.row - self.direction, self.column + 1),
+        ]
+        return moves
