@@ -96,3 +96,33 @@ class Pawn(Piece):
             (self.row - self.direction, self.column + 1),
         ]
         return moves
+
+
+class Bishop(Piece):
+    """Piece with value 3"""
+
+    def __init__(self, row, column, colour):
+        super().__init__(row, column, 3, colour)
+
+    def generate_moves(self):
+        """
+        Bishops can move diagonally any number of spaces.
+        """
+        moves = []
+
+        # Top right diagonal
+        moves += list(zip(range(self.row - 1, -1, -1), range(self.column + 1, 8)))
+
+        # Top left diagonal
+        moves += list(zip(range(self.row - 1, -1, -1), range(self.column - 1, -1, -1)))
+
+        # Bottom right diagonal
+        moves += list(zip(range(self.row + 1, 8), range(self.column + 1, 8)))
+
+        # Bottom left diagonal
+        moves += list(zip(range(self.row + 1, 8), range(self.column - 1, -1, -1)))
+
+        return moves
+
+bishop = Bishop(2, 1, True)
+print(bishop.generate_moves())
