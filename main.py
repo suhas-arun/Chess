@@ -124,5 +124,31 @@ class Bishop(Piece):
 
         return moves
 
-bishop = Bishop(2, 1, True)
-print(bishop.generate_moves())
+
+class Knight(Piece):
+    """Piece with value 3"""
+
+    def __init__(self, row, column, colour):
+        super().__init__(row, column, 3, colour)
+
+    def generate_moves(self):
+        """Knights move in an L shape."""
+        relative_moves = [
+            (2, 1),
+            (2, -1),
+            (-2, 1),
+            (-2, -1),
+            (1, 2),
+            (1, -2),
+            (-1, 2),
+            (-1, -2),
+        ]
+        moves = []
+
+        for vertical_shift, horizontal_shift in relative_moves:
+            new_row = self.row + vertical_shift
+            new_column = self.column + horizontal_shift
+            if 0 <= new_row < 8 and 0 <= new_column < 8:
+                moves.append((new_row, new_column))
+
+        return moves
