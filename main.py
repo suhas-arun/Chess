@@ -156,26 +156,58 @@ class Knight(Piece):
 
 class Rook(Piece):
     """Piece with value 5"""
-    
+
     def __init__(self, row, column, colour):
         super().__init__(row, column, 5, colour)
         self.has_moved = False
-    
+
     def generate_moves(self):
         """Rooks move up and down their column and row"""
         moves = []
 
         # Squares on the same row
-        columns = [i for i in range(8)]
+        columns = list(range(8))
         columns.pop(self.column)
         moves += [(self.row, i) for i in columns]
 
-        #Squares on the same column
-        rows = [i for i in range(8)]
+        # Squares on the same column
+        rows = list(range(8))
         rows.pop(self.row)
         moves += [(i, self.column) for i in rows]
 
         return moves
 
-rook = Rook(2, 1, True)
-print(rook.generate_moves())
+
+class Queen(Piece):
+    """Piece with value 9"""
+
+    def __init__(self, row, column, colour):
+        super().__init__(row, column, 9, colour)
+
+    def generate_moves(self):
+        """Queens can move diagonally or in straight lines."""
+        moves = []
+
+        # Top right diagonal
+        moves += list(zip(range(self.row - 1, -1, -1), range(self.column + 1, 8)))
+
+        # Top left diagonal
+        moves += list(zip(range(self.row - 1, -1, -1), range(self.column - 1, -1, -1)))
+
+        # Bottom right diagonal
+        moves += list(zip(range(self.row + 1, 8), range(self.column + 1, 8)))
+
+        # Bottom left diagonal
+        moves += list(zip(range(self.row + 1, 8), range(self.column - 1, -1, -1)))
+
+        # Squares on the same row
+        columns = list(range(8))
+        columns.pop(self.column)
+        moves += [(self.row, i) for i in columns]
+
+        # Squares on the same column
+        rows = list(range(8))
+        rows.pop(self.row)
+        moves += [(i, self.column) for i in rows]
+
+        return moves
