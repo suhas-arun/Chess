@@ -211,3 +211,42 @@ class Queen(Piece):
         moves += [(i, self.column) for i in rows]
 
         return moves
+
+
+class King(Piece):
+    """
+    Piece initialised with value 10000. If this piece is attacked and it has no
+    legal moves, the game is over.
+    """
+
+    def __init__(self, row, column, colour):
+        super().__init__(row, column, 10000, colour)
+        self.has_moved = False
+
+    def generate_moves(self):
+        """Kings can move one square in any direction."""
+        relative_moves = [
+            (1, 1),
+            (1, 0),
+            (1, -1),
+            (0, 1),
+            (0, -1),
+            (-1, 1),
+            (-1, 0),
+            (-1, -1),
+        ]
+        moves = []
+
+        for vertical_shift, horizontal_shift in relative_moves:
+            new_row = self.row + vertical_shift
+            new_column = self.column + horizontal_shift
+            if 0 <= new_row < 8 and 0 <= new_column < 8:
+                moves.append((new_row, new_column))
+
+        return moves
+
+
+king = King(2, 1, True)
+print(king.generate_moves())
+king = King(0, 0, True)
+print(king.generate_moves())
