@@ -64,6 +64,18 @@ class Game:
 
         return ((current_row, current_column), (new_row, new_column))
 
+    def validate_move(self, current_square, new_square):
+        """
+        Checks if the move is legal for that piece and if there is a piece of
+        the same colour on the new square.
+        """
+        current_row, current_column = current_square
+        piece = self.board.board[current_row][current_column]
+        if Piece is None:
+            return False
+
+        print(piece.generate_moves())
+
 
 class Pawn(Piece):
     """Piece with value 1."""
@@ -97,6 +109,12 @@ class Pawn(Piece):
         ]
         return moves
 
+    def __str__(self):
+        output = "P"
+        if not self.colour:
+            output += "'"
+        return output
+
 
 class Bishop(Piece):
     """Piece with value 3"""
@@ -123,6 +141,12 @@ class Bishop(Piece):
         moves += list(zip(range(self.row + 1, 8), range(self.column - 1, -1, -1)))
 
         return moves
+
+    def __str__(self):
+        output = "B"
+        if not self.colour:
+            output += "'"
+        return output
 
 
 class Knight(Piece):
@@ -153,6 +177,12 @@ class Knight(Piece):
 
         return moves
 
+    def __str__(self):
+        output = "N"
+        if not self.colour:
+            output += "'"
+        return output
+
 
 class Rook(Piece):
     """Piece with value 5"""
@@ -176,6 +206,12 @@ class Rook(Piece):
         moves += [(i, self.column) for i in rows]
 
         return moves
+
+    def __str__(self):
+        output = "R"
+        if not self.colour:
+            output += "'"
+        return output
 
 
 class Queen(Piece):
@@ -212,6 +248,12 @@ class Queen(Piece):
 
         return moves
 
+    def __str__(self):
+        output = "Q"
+        if not self.colour:
+            output += "'"
+        return output
+
 
 class King(Piece):
     """
@@ -245,8 +287,30 @@ class King(Piece):
 
         return moves
 
+    def __str__(self):
+        output = "K"
+        if not self.colour:
+            output += "'"
+        return output
 
-king = King(2, 1, True)
-print(king.generate_moves())
-king = King(0, 0, True)
-print(king.generate_moves())
+
+game = Game()
+game.board.board[0][0] = King(0, 0, False)
+game.board.board[7][0] = King(7, 0, True)
+
+game.board.board[0][1] = Queen(0, 1, False)
+game.board.board[7][1] = Queen(7, 1, True)
+
+game.board.board[0][2] = Rook(0, 2, False)
+game.board.board[7][2] = Rook(7, 2, True)
+
+game.board.board[0][3] = Knight(0, 3, False)
+game.board.board[7][3] = Knight(7, 3, True)
+
+game.board.board[0][4] = Bishop(0, 4, False)
+game.board.board[7][4] = Bishop(7, 4, True)
+
+game.board.board[0][5] = Pawn(0, 5, False)
+game.board.board[7][5] = Pawn(7, 5, True)
+
+game.board.print_board()
