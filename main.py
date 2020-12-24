@@ -64,6 +64,26 @@ class Game:
 
         return ((current_row, current_column), (new_row, new_column))
 
+    def validate_move(self, current_square, new_square):
+        """
+        Validates a move by checking if the piece is allowed to move to the new
+        square and if the new square does not have another piece of the same
+        colour.
+        """
+        if not self.is_move_legal(current_square, new_square):
+            return False
+
+        current_row, current_column = current_square
+        new_row, new_column = new_square
+
+        current_piece = self.board.board[current_row][current_column]
+        piece_at_new_square = self.board.board[new_row][new_column]
+
+        return (
+            piece_at_new_square is None
+            or current_piece.colour != piece_at_new_square.colour
+        )
+
     def is_move_legal(self, current_square, new_square):
         """
         Checks if the move abides by the moving rules for that piece.
@@ -294,11 +314,13 @@ class King(Piece):
 
 
 game = Game()
-game.input_move()
-game.board.print_board()
-# game.board.board[2][1] = Queen(2, 1, True)
-# print(game.is_move_legal((2, 1), (2, 6)))
-# print(game.is_move_legal((2, 1), (3, 6)))
-# print(game.is_move_legal((2, 1), (7, 1)))
-# print(game.is_move_legal((2, 1), (7, 2)))
-# print(game.is_move_legal((3, 1), (7, 2)))
+game.board.board[2][1] = Queen(2, 1, True)
+print(game.validate_move((2, 1), (2, 6)))
+print(game.validate_move((2, 1), (3, 6)))
+print(game.validate_move((2, 1), (7, 1)))
+
+game.board.board[2][6] = Pawn(2, 6, True)
+print(game.validate_move((2, 1), (2, 6)))
+
+game.board.board[7][1] = Pawn(7, 1, False)
+print(game.validate_move((2, 1), (7, 1)))
