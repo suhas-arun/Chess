@@ -64,17 +64,16 @@ class Game:
 
         return ((current_row, current_column), (new_row, new_column))
 
-    def validate_move(self, current_square, new_square):
+    def is_move_legal(self, current_square, new_square):
         """
-        Checks if the move is legal for that piece and if there is a piece of
-        the same colour on the new square.
+        Checks if the move abides by the moving rules for that piece.
         """
         current_row, current_column = current_square
         piece = self.board.board[current_row][current_column]
-        if Piece is None:
+        if piece is None:
             return False
 
-        print(piece.generate_moves())
+        return new_square in piece.generate_moves()
 
 
 class Pawn(Piece):
@@ -295,22 +294,11 @@ class King(Piece):
 
 
 game = Game()
-game.board.board[0][0] = King(0, 0, False)
-game.board.board[7][0] = King(7, 0, True)
-
-game.board.board[0][1] = Queen(0, 1, False)
-game.board.board[7][1] = Queen(7, 1, True)
-
-game.board.board[0][2] = Rook(0, 2, False)
-game.board.board[7][2] = Rook(7, 2, True)
-
-game.board.board[0][3] = Knight(0, 3, False)
-game.board.board[7][3] = Knight(7, 3, True)
-
-game.board.board[0][4] = Bishop(0, 4, False)
-game.board.board[7][4] = Bishop(7, 4, True)
-
-game.board.board[0][5] = Pawn(0, 5, False)
-game.board.board[7][5] = Pawn(7, 5, True)
-
+game.input_move()
 game.board.print_board()
+# game.board.board[2][1] = Queen(2, 1, True)
+# print(game.is_move_legal((2, 1), (2, 6)))
+# print(game.is_move_legal((2, 1), (3, 6)))
+# print(game.is_move_legal((2, 1), (7, 1)))
+# print(game.is_move_legal((2, 1), (7, 2)))
+# print(game.is_move_legal((3, 1), (7, 2)))
