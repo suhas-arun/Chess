@@ -95,6 +95,22 @@ class Game:
 
         return new_square in piece.generate_moves()
 
+    def is_move_blocked(self, current_square, new_square):
+        """
+        Checks if a move is blocked by another piece. This only applies to
+        pawns, bishops, rooks and queens.
+        """
+        current_row, current_column = current_square
+        piece = self.board.board[current_row][current_column]
+
+        if isinstance(piece, (King, Knight)):
+            return False
+
+        squares_passed = self.get_passed_squares(current_square, new_square)
+        return any(
+            [self.board.board[square[0]][square[1]] for square in squares_passed]
+        )
+
     def get_passed_squares(self, current_square, new_square):
         """Returns the squares which a piece moves over when a move is made."""
 
@@ -379,3 +395,11 @@ class King(Piece):
         if not self.colour:
             output += "'"
         return output
+
+
+GAME = Game()
+GAME.board.board[3][3] = Queen(3, 3, True)
+print(GAME.is_move_blocked((3, 3), (3, 6)))
+
+GAME.board.board[3][5] = Queen(3, 5, True)
+print(GAME.is_move_blocked((3, 3), (3, 6)))
