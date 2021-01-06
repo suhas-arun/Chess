@@ -52,6 +52,8 @@ class Game:
 
     def __init__(self):
         self.board = Board()
+        self.white_king_location = (7, 4)
+        self.black_king_location = (0, 3)
 
     def input_move(self):
         """
@@ -189,6 +191,9 @@ class Game:
         piece = self.board.board[current_row][current_column]
         self.board.board[current_row][current_column] = None
         self.board.board[new_row][new_column] = piece
+
+        piece.row = new_row
+        piece.column = new_column
 
 
 class Pawn(Piece):
