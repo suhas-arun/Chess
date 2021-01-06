@@ -179,6 +179,17 @@ class Game:
 
         return squares
 
+    def execute_move(self, current_square, new_square):
+        """
+        Executes a move by moving the piece object's location in the board list
+        """
+        current_row, current_column = current_square
+        new_row, new_column = new_square
+
+        piece = self.board.board[current_row][current_column]
+        self.board.board[current_row][current_column] = None
+        self.board.board[new_row][new_column] = piece
+
 
 class Pawn(Piece):
     """Piece with value 1."""
@@ -399,7 +410,7 @@ class King(Piece):
 
 GAME = Game()
 GAME.board.board[3][3] = Queen(3, 3, True)
-print(GAME.is_move_blocked((3, 3), (3, 6)))
-
-GAME.board.board[3][5] = Queen(3, 5, True)
-print(GAME.is_move_blocked((3, 3), (3, 6)))
+GAME.board.print_board()
+print()
+GAME.execute_move((3, 3), (3, 6))
+GAME.board.print_board()
