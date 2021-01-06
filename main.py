@@ -95,6 +95,74 @@ class Game:
 
         return new_square in piece.generate_moves()
 
+    def get_passed_squares(self, current_square, new_square):
+        """Returns the squares which a piece moves over when a move is made."""
+
+        current_row, current_column = current_square
+        new_row, new_column = new_square
+        squares = []
+
+        if new_column > current_column:
+            if new_row > current_row:  # bottom right diagonal
+                squares = list(
+                    zip(
+                        range(current_row + 1, new_row + 1),
+                        range(current_column + 1, new_column),
+                    )
+                )
+
+            elif new_row == current_row:  # right
+                squares = [
+                    (current_row, current_column + i)
+                    for i in range(1, new_column - current_column)
+                ]
+
+            else:
+                squares = list(  # top right diagonal
+                    zip(
+                        range(current_row - 1, new_row, -1),
+                        range(current_column + 1, new_column),
+                    )
+                )
+
+        elif new_column == current_column:
+            if new_row > current_row:  # below
+                squares = [
+                    (current_row + i, current_column)
+                    for i in range(1, new_row - current_row)
+                ]
+
+            else:  # above
+                squares = [
+                    (current_row - i, current_column)
+                    for i in range(1, current_row - new_row, 1)
+                ]
+
+        else:
+            if new_row > current_row:  # bottom left diagonal
+                squares = list(
+                    zip(
+                        range(current_row + 1, new_row),
+                        range(current_column - 1, new_column, -1),
+                    )
+                )
+
+            elif new_row == current_row:  # left
+                squares = [
+                    (current_row, current_column - i)
+                    for i in range(1, current_column - new_column)
+                ]
+
+            else:  # top left diagonal
+                squares = list(
+                    zip(
+                        range(current_row - 1, new_row, -1),
+                        range(current_column - 1, new_column, -1),
+                    )
+                )
+
+        return squares
+
 
 class Pawn(Piece):
     """Piece with value 1."""
@@ -311,16 +379,3 @@ class King(Piece):
         if not self.colour:
             output += "'"
         return output
-
-
-game = Game()
-game.board.board[2][1] = Queen(2, 1, True)
-print(game.validate_move((2, 1), (2, 6)))
-print(game.validate_move((2, 1), (3, 6)))
-print(game.validate_move((2, 1), (7, 1)))
-
-game.board.board[2][6] = Pawn(2, 6, True)
-print(game.validate_move((2, 1), (2, 6)))
-
-game.board.board[7][1] = Pawn(7, 1, False)
-print(game.validate_move((2, 1), (7, 1)))
