@@ -52,6 +52,8 @@ class Game:
 
     def __init__(self):
         self.board = Board()
+        self.white_check = False
+        self.black_check = False
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 3)
 
@@ -181,6 +183,15 @@ class Game:
 
         return squares
 
+    def update_check(self, piece):
+        """Checks if the piece that has just moved has put the king in check"""
+        if piece.colour:  # piece is white
+            if self.black_king_location in piece.generate_moves():
+                self.black_check = True
+        else:
+            if self.white_king_location in piece.generate_moves():
+                self.white_check = True
+
     def execute_move(self, current_square, new_square):
         """
         Executes a move by moving the piece object's location in the board list
@@ -194,6 +205,14 @@ class Game:
 
         piece.row = new_row
         piece.column = new_column
+
+        if isinstance(piece, King):
+            if piece.colour:
+                self.white_king_location = (new_row, new_column)
+            else:
+                self.black_king_location = (new_row, new_column)
+
+        self.update_check(piece)
 
 
 class Pawn(Piece):
@@ -414,8 +433,9 @@ class King(Piece):
 
 
 GAME = Game()
-GAME.board.board[3][3] = Queen(3, 3, True)
-GAME.board.print_board()
-print()
-GAME.execute_move((3, 3), (3, 6))
-GAME.board.print_board()
+GAME.board.board[0][3] = King(0, 3, False)
+GAME.board.board[4][4] = Rook(4, 4, True)
+print(GAME.black_check)
+
+GAME.execute_move((4, 4), (4, 3))
+print(GAME.black_check)
