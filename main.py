@@ -27,8 +27,8 @@ class Board:
         self.board[0][6] = Knight(0, 6, False)
         self.board[0][2] = Bishop(0, 2, False)
         self.board[0][5] = Bishop(0, 5, False)
-        self.board[0][3] = King(0, 3, False)
-        self.board[0][4] = Queen(0, 4, False)
+        self.board[0][3] = Queen(0, 3, False)
+        self.board[0][4] = King(0, 4, False)
         for column in range(8):
             self.board[1][column] = Pawn(1, column, False)
 
@@ -78,10 +78,29 @@ class Game:
 
     def __init__(self):
         self.board = Board()
+        self.current_player_colour = True
         self.white_check = False
         self.black_check = False
         self.white_king_location = (7, 4)
-        self.black_king_location = (0, 3)
+        self.black_king_location = (0, 4)
+
+    def play(self):
+        """Controls the overall mechanism of playing the game"""
+        self.board.print_board()
+        print("White:" if self.current_player_colour else "Black:")
+        move = self.input_move()
+        while move != "Quit":
+            current_square, new_square = move
+            if self.validate_move(
+                current_square, new_square
+            ) and not self.is_move_blocked(current_square, new_square):
+                self.execute_move(current_square, new_square)
+                self.board.print_board()
+            else:
+                print("Not legal")
+
+            print("\nWhite:" if self.current_player_colour else "\nBlack:")
+            move = self.input_move()
 
     def input_move(self):
         """
@@ -120,7 +139,7 @@ class Game:
         """
         current_row, current_column = current_square
         piece = self.board.board[current_row][current_column]
-        if piece is None:
+        if piece is None or piece.colour != self.current_player_colour:
             return False
 
         return new_square in piece.generate_moves()
@@ -211,7 +230,7 @@ class Game:
 
     def update_check(self, piece):
         """Checks if the piece that has just moved has put the king in check"""
-        if piece.colour:  # piece is white
+        if self.current_player_colour:  # white's turn
             if self.black_king_location in piece.generate_moves():
                 self.black_check = True
         else:
@@ -232,6 +251,9 @@ class Game:
         piece.row = new_row
         piece.column = new_column
 
+        if isinstance(piece, (Pawn, Rook, King)):
+            piece.has_moved = True
+
         if isinstance(piece, King):
             if piece.colour:
                 self.white_king_location = (new_row, new_column)
@@ -239,6 +261,7 @@ class Game:
                 self.black_king_location = (new_row, new_column)
 
         self.update_check(piece)
+        self.current_player_colour = not self.current_player_colour
 
 
 class Pawn(Piece):
@@ -458,6 +481,6 @@ class King(Piece):
         return output
 
 
-BOARD = Board()
-BOARD.initialise_board()
-BOARD.print_board()
+GAME = Game()
+GAME.board.initialise_board()
+GAME.play()
