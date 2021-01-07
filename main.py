@@ -18,6 +18,32 @@ class Board:
         for row in self.board:
             print("\t".join([str(i) for i in row]))
 
+    def initialise_board(self):
+        """Initialises the board list with the pieces in their places"""
+        # Black pieces
+        self.board[0][0] = Rook(0, 0, False)
+        self.board[0][7] = Rook(0, 7, False)
+        self.board[0][1] = Knight(0, 1, False)
+        self.board[0][6] = Knight(0, 6, False)
+        self.board[0][2] = Bishop(0, 2, False)
+        self.board[0][5] = Bishop(0, 5, False)
+        self.board[0][3] = King(0, 3, False)
+        self.board[0][4] = Queen(0, 4, False)
+        for column in range(8):
+            self.board[1][column] = Pawn(1, column, False)
+
+        # White pieces
+        self.board[7][0] = Rook(7, 0, True)
+        self.board[7][7] = Rook(7, 7, True)
+        self.board[7][1] = Knight(7, 1, True)
+        self.board[7][6] = Knight(7, 6, True)
+        self.board[7][2] = Bishop(7, 2, True)
+        self.board[7][5] = Bishop(7, 5, True)
+        self.board[7][4] = King(7, 4, True)
+        self.board[7][3] = Queen(7, 3, True)
+        for column in range(8):
+            self.board[6][column] = Pawn(6, column, True)
+
 
 class Piece:
     """
@@ -432,10 +458,6 @@ class King(Piece):
         return output
 
 
-GAME = Game()
-GAME.board.board[0][3] = King(0, 3, False)
-GAME.board.board[4][4] = Rook(4, 4, True)
-print(GAME.black_check)
-
-GAME.execute_move((4, 4), (4, 3))
-print(GAME.black_check)
+BOARD = Board()
+BOARD.initialise_board()
+BOARD.print_board()
