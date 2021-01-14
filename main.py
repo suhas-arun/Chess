@@ -6,6 +6,7 @@ class Board:
 
     def __init__(self):
         self.board = [[None for _ in range(8)] for _ in range(8)]
+        self.ranks = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
     def get_square(self, row, column):
         """
@@ -15,8 +16,9 @@ class Board:
 
     def print_board(self):
         """Prints the board list row by row, space-separated."""
-        for row in self.board:
-            print("\t".join([str(i) for i in row]))
+        print("\t".join(self.ranks) + "\n")
+        for row_number, row in enumerate(self.board):
+            print("\t".join([str(i) for i in row]) + f"\t{8 - row_number}")
 
     def initialise_board(self):
         """Initialises the board list with the pieces in their places"""
@@ -87,7 +89,7 @@ class Game:
     def play(self):
         """Controls the overall mechanism of playing the game"""
         self.board.print_board()
-        print("White:" if self.current_player_colour else "Black:")
+        print("\nWhite:" if self.current_player_colour else "\nBlack:")
         move = self.input_move()
         while move != "Quit":
             current_square, new_square = move
@@ -95,6 +97,7 @@ class Game:
                 current_square, new_square
             ) and not self.is_move_blocked(current_square, new_square):
                 self.execute_move(current_square, new_square)
+                print()
                 self.board.print_board()
             else:
                 print("Not legal")
@@ -108,10 +111,13 @@ class Game:
         square that the piece to be moved is on, and the square where the piece
         is to be moved.
         """
-        current_row, current_column = map(int, input("Piece (y x): ").split())
-        new_row, new_column = map(int, input("Square (y x): ").split())
+        current_column, current_row = list(input("Piece (xy): "))
+        new_column, new_row = list(input("Square (x y): "))
 
-        return ((current_row, current_column), (new_row, new_column))
+        current_column = self.board.ranks.index(current_column)
+        new_column = self.board.ranks.index(new_column)
+
+        return ((8 - int(current_row), current_column), (8 - int(new_row), new_column))
 
     def validate_move(self, current_square, new_square):
         """
