@@ -138,9 +138,19 @@ class Game:
         Checks if the move abides by the moving rules for that piece.
         """
         current_row, current_column = current_square
+        new_row, new_column = new_square
         piece = self.board.board[current_row][current_column]
         if piece is None or piece.colour != self.current_player_colour:
             return False
+
+        if isinstance(piece, Pawn):
+            if new_square in piece.get_attacked_squares():
+                piece_at_square = self.board.board[new_row][new_column]
+                if (
+                    piece_at_square
+                    and piece_at_square.colour != self.current_player_colour
+                ):
+                    return True
 
         return new_square in piece.generate_moves()
 
