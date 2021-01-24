@@ -240,15 +240,6 @@ class Game:
 
         return squares
 
-    def update_check(self, piece):
-        """Checks if the piece that has just moved has put the king in check"""
-        if self.current_player_colour:  # white's turn
-            if self.black_king_location in piece.generate_moves():
-                self.black_check = True
-        else:
-            if self.white_king_location in piece.generate_moves():
-                self.white_check = True
-
     def execute_move(self, current_square, new_square):
         """
         Executes a move by moving the piece object's location in the board list
@@ -272,8 +263,84 @@ class Game:
             else:
                 self.black_king_location = (new_row, new_column)
 
-        self.update_check(piece)
         self.current_player_colour = not self.current_player_colour
+
+    def is_king_in_check(self):
+        """
+        Checks all rows, columns and diagonals leading out from the king and
+        checks if there are any opponent pieces attacking the king.
+        """
+        self.white_check = False
+        self.black_check = False
+        current_colour = self.current_player_colour
+        if current_colour:
+            current_row, current_column = self.white_king_location
+        else:
+            current_row, current_column = self.black_king_location
+
+        directions = [
+            # Rook/Queen directions (straight lines):
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1),
+            # Bishop/Queen directions (diagonal lines):
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+            (1, 1),
+        ]
+
+        for i, direction in enumerate(directions):
+            for step in range(1, 8):
+                new_row = current_row + direction[0] * step
+                new_column = current_column + direction[1] * step
+                if 0 <= new_row < 8 and 0 <= new_column < 8:
+                    piece = self.board.board[new_row][new_column]
+                    if piece is None:
+                        continue
+                    if piece.colour == self.current_player_colour:
+                        break
+                    if (0 <= i <= 3 and isinstance(piece, (Rook, Queen))) or (
+                        4 <= i <= 7
+                        and isinstance(piece, (Bishop, Queen))
+                        or (
+                            isinstance(piece, Pawn)
+                            and (current_row, current_column)
+                            in piece.get_attacked_squares()
+                        )
+                    ):
+                        if self.current_player_colour:
+                            self.white_check = True
+                        else:
+                            self.black_check = True
+                break
+
+        knight_positions = [
+            (2, 1),
+            (2, -1),
+            (-2, 1),
+            (-2, -1),
+            (1, 2),
+            (1, -2),
+            (-1, 2),
+            (-1, -2),
+        ]
+
+        for vertical_shift, horizontal_shift in knight_positions:
+            new_row = current_row + vertical_shift
+            new_column = current_column + horizontal_shift
+            if 0 <= new_row < 8 and 0 <= new_column < 8:
+                piece = self.board.board[new_row][new_column]
+                if piece is None:
+                    continue
+                if piece.colour == self.current_player_colour:
+                    break
+                if isinstance(piece, Knight):
+                    if self.current_player_colour:
+                        self.white_check = True
+                    else:
+                        self.black_check = True
 
 
 class Pawn(Piece):
@@ -494,5 +561,9 @@ class King(Piece):
 
 
 GAME = Game()
-GAME.board.initialise_board()
-GAME.play()
+GAME.board.board[4][4] = King(4, 4, True)
+GAME.white_king_location = (4, 4)
+GAME.board.board[2][2] = Knight(2, 2, False)
+GAME.board.print_board()
+GAME.is_king_in_check()
+print(GAME.white_check)
