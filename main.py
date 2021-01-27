@@ -88,25 +88,30 @@ class Game:
         self.black_check = False
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
+        self.white_checkmate = False
+        self.black_checkmate = False
+        self.stalemate = False
 
     def play(self):
         """Controls the overall mechanism of playing the game"""
         self.board.print_board()
-        print("\nWhite:" if self.current_player_colour else "\nBlack:")
-        move = self.input_move()
-        while move != "Quit":
-            current_square, new_square = move
-            if self.validate_move(
-                current_square, new_square
-            ) and not self.is_move_blocked(current_square, new_square):
+        while not (self.white_checkmate or self.black_checkmate or self.stalemate):
+            print("\nWhite:" if self.current_player_colour else "\nBlack:")
+            current_square, new_square = self.input_move()
+            if self.validate_move(current_square, new_square):
                 self.execute_move(current_square, new_square)
                 print()
                 self.board.print_board()
+                self.is_checkmate_or_stalemate()
             else:
                 print("Not legal")
 
-            print("\nWhite:" if self.current_player_colour else "\nBlack:")
-            move = self.input_move()
+        if self.white_checkmate:
+            print("\nCheckmate. White wins!")
+        elif self.black_checkmate:
+            print("\nCheckmate. Black wins!")
+        elif self.stalemate:
+            print("\nStalemate. It's a draw!")
 
     def input_move(self):
         """
@@ -134,7 +139,9 @@ class Game:
         current_piece = self.board.board[current_row][current_column]
         piece_at_new_square = self.board.board[new_row][new_column]
 
-        if not self.is_move_legal(current_square, new_square):
+        if not self.is_move_legal(current_square, new_square) or self.is_move_blocked(
+            current_square, new_square
+        ):
             return False
 
         if piece_at_new_square is not None:
@@ -382,6 +389,40 @@ class Game:
                     else:
                         self.black_check = True
 
+    def is_checkmate_or_stalemate(self):
+        """
+        Determines whether the current player is in checkmate or stalemate.
+        This is done by checking if there are any possible moves for any of the
+        pieces on the board.
+        """
+        if self.current_player_colour:  # Current player is white
+            for piece in self.board.white_pieces:
+                current_square = (piece.row, piece.column)
+                for new_square in piece.generate_moves():
+                    if self.validate_move(current_square, new_square):
+                        return
+
+            # No valid moves
+            self.is_king_in_check()
+            if self.white_check:
+                self.black_checkmate = True
+            else:
+                self.stalemate = True
+
+        else:  # Current player is black
+            for piece in self.board.black_pieces:
+                current_square = (piece.row, piece.column)
+                for new_square in piece.generate_moves():
+                    if self.validate_move(current_square, new_square):
+                        return
+
+            # No valid moves
+            self.is_king_in_check()
+            if self.black_check:
+                self.white_checkmate = True
+            else:
+                self.stalemate = True
+
 
 class Pawn(Piece):
     """Piece with value 1."""
@@ -601,5 +642,11 @@ class King(Piece):
 
 
 GAME = Game()
-GAME.board.initialise_board()
-GAME.play()
+GAME.board.board[0][7] = King(0, 7, False)
+GAME.black_king_location = (0, 7)
+GAME.board.board[2][6] = Queen(2, 6, True)
+
+GAME.current_player_colour = False
+GAME.board.print_board()
+GAME.is_checkmate_or_stalemate()
+print(GAME.stalemate)
