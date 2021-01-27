@@ -7,6 +7,27 @@ class Board:
     def __init__(self):
         self.board = [[None for _ in range(8)] for _ in range(8)]
         self.ranks = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        self.white_pieces = [
+            Rook(7, 0, True),
+            Rook(7, 7, True),
+            Knight(7, 1, True),
+            Knight(7, 6, True),
+            Bishop(7, 2, True),
+            Bishop(7, 5, True),
+            Queen(7, 3, True),
+            King(7, 4, True),
+        ] + [Pawn(6, column, True) for column in range(8)]
+
+        self.black_pieces = [
+            Rook(0, 0, False),
+            Rook(0, 7, False),
+            Knight(0, 1, False),
+            Knight(0, 6, False),
+            Bishop(0, 2, False),
+            Bishop(0, 5, False),
+            Queen(0, 3, False),
+            King(0, 4, False),
+        ] + [Pawn(1, column, False) for column in range(8)]
 
     def get_square(self, row, column):
         """
@@ -22,29 +43,8 @@ class Board:
 
     def initialise_board(self):
         """Initialises the board list with the pieces in their places"""
-        # Black pieces
-        self.board[0][0] = Rook(0, 0, False)
-        self.board[0][7] = Rook(0, 7, False)
-        self.board[0][1] = Knight(0, 1, False)
-        self.board[0][6] = Knight(0, 6, False)
-        self.board[0][2] = Bishop(0, 2, False)
-        self.board[0][5] = Bishop(0, 5, False)
-        self.board[0][3] = Queen(0, 3, False)
-        self.board[0][4] = King(0, 4, False)
-        for column in range(8):
-            self.board[1][column] = Pawn(1, column, False)
-
-        # White pieces
-        self.board[7][0] = Rook(7, 0, True)
-        self.board[7][7] = Rook(7, 7, True)
-        self.board[7][1] = Knight(7, 1, True)
-        self.board[7][6] = Knight(7, 6, True)
-        self.board[7][2] = Bishop(7, 2, True)
-        self.board[7][5] = Bishop(7, 5, True)
-        self.board[7][4] = King(7, 4, True)
-        self.board[7][3] = Queen(7, 3, True)
-        for column in range(8):
-            self.board[6][column] = Pawn(6, column, True)
+        for piece in self.white_pieces + self.black_pieces:
+            self.board[piece.row][piece.column] = piece
 
 
 class Piece:
@@ -73,6 +73,9 @@ class Piece:
         by each subclass. If the piece is white, it is moving upwards, else
         it is moving downwards on the board.
         """
+
+    def __repr__(self):
+        return str(self)
 
 
 class Game:
@@ -280,11 +283,18 @@ class Game:
         new_row, new_column = new_square
 
         piece = self.board.board[current_row][current_column]
+        piece_at_new_square = self.board.board[new_row][new_column]
+
         self.board.board[current_row][current_column] = None
         self.board.board[new_row][new_column] = piece
-
         piece.row = new_row
         piece.column = new_column
+
+        if piece_at_new_square:
+            if piece_at_new_square.colour:
+                self.board.white_pieces.remove(piece_at_new_square)
+            else:
+                self.board.black_pieces.remove(piece_at_new_square)
 
         if isinstance(piece, (Pawn, Rook, King)):
             piece.has_moved = True
@@ -364,10 +374,8 @@ class Game:
             new_column = current_column + horizontal_shift
             if 0 <= new_row < 8 and 0 <= new_column < 8:
                 piece = self.board.board[new_row][new_column]
-                if piece is None:
+                if piece is None or piece.colour == self.current_player_colour:
                     continue
-                if piece.colour == self.current_player_colour:
-                    break
                 if isinstance(piece, Knight):
                     if self.current_player_colour:
                         self.white_check = True
