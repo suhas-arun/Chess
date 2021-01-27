@@ -125,19 +125,51 @@ class Game:
         square and if the new square does not have another piece of the same
         colour.
         """
-        if not self.is_move_legal(current_square, new_square):
-            return False
-
         current_row, current_column = current_square
         new_row, new_column = new_square
 
         current_piece = self.board.board[current_row][current_column]
         piece_at_new_square = self.board.board[new_row][new_column]
 
-        return (
-            piece_at_new_square is None
-            or current_piece.colour != piece_at_new_square.colour
-        )
+        if not self.is_move_legal(current_square, new_square):
+            return False
+
+        if piece_at_new_square is not None:
+            if current_piece.colour == piece_at_new_square.colour:
+                return False
+
+        self.is_king_in_check()
+        valid = True
+
+        self.board.board[current_row][current_column] = None
+        self.board.board[new_row][new_column] = current_piece
+
+        if self.current_player_colour:  # The current player is white
+            if isinstance(current_piece, King):
+                self.white_king_location = (new_row, new_column)
+
+            self.is_king_in_check()
+            if self.white_check:
+                valid = False
+
+            if isinstance(current_piece, King):
+                self.white_king_location = (current_row, current_column)
+
+        else:
+            if isinstance(current_piece, King):
+                self.black_king_location = (new_row, new_column)
+
+            self.is_king_in_check()
+            if self.black_check:
+                valid = False
+
+            if isinstance(current_piece, King):
+                self.black_king_location = (current_row, current_column)
+
+        self.board.board[current_row][current_column] = current_piece
+        self.board.board[new_row][new_column] = piece_at_new_square
+
+        return valid
 
     def is_move_legal(self, current_square, new_square):
         """
@@ -561,9 +593,5 @@ class King(Piece):
 
 
 GAME = Game()
-GAME.board.board[4][4] = King(4, 4, True)
-GAME.white_king_location = (4, 4)
-GAME.board.board[2][2] = Knight(2, 2, False)
-GAME.board.print_board()
-GAME.is_king_in_check()
-print(GAME.white_check)
+GAME.board.initialise_board()
+GAME.play()
