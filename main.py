@@ -326,6 +326,14 @@ class Game:
             else:
                 self.board.black_pieces.remove(piece_at_new_square)
 
+        if isinstance(piece, Pawn):
+            if self.current_player_colour:
+                if new_row == 0:
+                    self.promote_pawn(piece)
+            else:
+                if new_row == 7:
+                    self.promote_pawn(piece)
+
         if isinstance(piece, (Pawn, Rook, King)):
             piece.has_moved = True
 
@@ -512,6 +520,32 @@ class Game:
             return True
         return False
 
+    def promote_pawn(self, pawn):
+        """Promotes the pawn to a new piece when it reaches the last row"""
+        row = pawn.row
+        column = pawn.column
+        colour = pawn.colour
+
+        new_piece = None
+        while new_piece is None:
+            piece_name = input("New piece (Queen/Rook/Bishop/Knight): ").lower()
+            if piece_name == "queen":
+                new_piece = Queen(row, column, colour)
+            elif piece_name == "rook":
+                new_piece = Rook(row, column, colour)
+            elif piece_name == "bishop":
+                new_piece = Bishop(row, column, colour)
+            elif piece_name == "knight":
+                new_piece = Knight(row, column, colour)
+
+        if colour:
+            self.board.white_pieces.remove(pawn)
+            self.board.white_pieces.append(new_piece)
+        else:
+            self.board.black_pieces.remove(pawn)
+            self.board.black_pieces.append(new_piece)
+
+        self.board.board[row][column] = new_piece
 
 class Pawn(Piece):
     """Piece with value 1."""
