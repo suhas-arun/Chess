@@ -580,10 +580,9 @@ class Pawn(Piece):
         return moves
 
     def __str__(self):
-        output = "P"
-        if not self.colour:
-            output += "'"
-        return output
+        if self.colour:
+            return "♙"
+        return "♟︎"
 
 
 class Bishop(Piece):
@@ -613,10 +612,9 @@ class Bishop(Piece):
         return moves
 
     def __str__(self):
-        output = "B"
-        if not self.colour:
-            output += "'"
-        return output
+        if self.colour:
+            return "♗"
+        return "♝"
 
 
 class Knight(Piece):
@@ -648,10 +646,9 @@ class Knight(Piece):
         return moves
 
     def __str__(self):
-        output = "N"
-        if not self.colour:
-            output += "'"
-        return output
+        if self.colour:
+            return "♘"
+        return "♞"
 
 
 class Rook(Piece):
@@ -678,10 +675,9 @@ class Rook(Piece):
         return moves
 
     def __str__(self):
-        output = "R"
-        if not self.colour:
-            output += "'"
-        return output
+        if self.colour:
+            return "♖"
+        return "♜"
 
 
 class Queen(Piece):
@@ -719,10 +715,9 @@ class Queen(Piece):
         return moves
 
     def __str__(self):
-        output = "Q"
-        if not self.colour:
-            output += "'"
-        return output
+        if self.colour:
+            return "♕"
+        return "♛"
 
 
 class King(Piece):
@@ -758,12 +753,6 @@ class King(Piece):
         return moves
 
     def __str__(self):
-        output = "K"
-        if not self.colour:
-            output += "'"
-        return output
-
-
-GAME = Game()
-GAME.board.initialise_board()
-GAME.play()
+        if self.colour:
+            return "♔"
+        return "♚"
