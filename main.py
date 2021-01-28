@@ -91,6 +91,7 @@ class Game:
         self.white_checkmate = False
         self.black_checkmate = False
         self.stalemate = False
+        self.just_castled = False
 
     def play(self):
         """Controls the overall mechanism of playing the game"""
@@ -149,6 +150,16 @@ class Game:
                 return False
 
         self.is_king_in_check()
+
+        # check if move is castle
+        if isinstance(current_piece, King):
+            if (
+                new_row == current_row
+                and new_column == current_column + 2
+                or new_column == current_column - 2
+            ):
+                return self.validate_castling_move(current_square, new_square)
+
         valid = True
 
         self.board.board[current_row][current_column] = None
@@ -190,6 +201,14 @@ class Game:
         piece = self.board.board[current_row][current_column]
         if piece is None or piece.colour != self.current_player_colour:
             return False
+
+        if isinstance(piece, King):
+            if (
+                new_row == current_row
+                and new_column == current_column + 2
+                or new_column == current_column - 2
+            ):
+                return True
 
         if isinstance(piece, Pawn):
             piece_at_square = self.board.board[new_row][new_column]
@@ -286,6 +305,10 @@ class Game:
         """
         Executes a move by moving the piece object's location in the board list
         """
+        if self.just_castled:  # Prevents move from being executed twice after castling
+            self.just_castled = False
+            return
+
         current_row, current_column = current_square
         new_row, new_column = new_square
 
@@ -422,6 +445,72 @@ class Game:
                 self.white_checkmate = True
             else:
                 self.stalemate = True
+
+    def validate_castling_move(self, current_square, new_square):
+        """
+        Determines whether a castling move is valid. The move is invalid if
+        there are any pieces between the king and rook, if either the king or
+        rook have moved previously, the king is in check or it moves over check
+        """
+        current_row, current_column = current_square
+        _, new_column = new_square
+
+        king_piece = self.board.board[current_row][current_column]
+        passed_squares_columns = []
+
+        if new_column > current_column:  # King-side castle
+            rook_piece = self.board.board[current_row][7]
+            passed_squares_columns = list(range(current_column, new_column + 1))
+            new_rook_column = new_column - 1
+        else:  # Queen-side castle
+            rook_piece = self.board.board[current_row][0]
+            passed_squares_columns = list(range(current_column, new_column - 1, -1))
+            new_rook_column = new_column + 1
+
+        if (
+            self.is_move_blocked(current_square, (current_row, rook_piece.column))
+            or king_piece.has_moved
+            or rook_piece.has_moved
+            or (self.current_player_colour and self.white_check)
+            or (not self.current_player_colour and self.black_check)
+        ):
+            return False
+
+        # Check if king passes over attacked squares
+        valid = True
+        for column in passed_squares_columns:
+            self.board.board[current_row][column] = king_piece
+
+            if self.current_player_colour:  # The current player is white
+                self.white_king_location = (current_row, column)
+
+                self.is_king_in_check()
+                if self.white_check:
+                    valid = False
+
+                self.white_king_location = (current_row, current_column)
+
+            else:
+                self.black_king_location = (current_row, column)
+
+                self.is_king_in_check()
+                if self.black_check:
+                    valid = False
+
+                self.black_king_location = (current_row, current_column)
+
+            self.board.board[current_row][current_column] = king_piece
+            self.board.board[current_row][column] = None
+
+        if valid:  # execute castle moves
+            self.execute_move(current_square, new_square)
+            self.current_player_colour = not self.current_player_colour
+            self.execute_move(
+                (current_row, rook_piece.column), (current_row, new_rook_column)
+            )
+            self.just_castled = True
+            return True
+        return False
 
 
 class Pawn(Piece):
@@ -642,11 +731,5 @@ class King(Piece):
 
 
 GAME = Game()
-GAME.board.board[0][7] = King(0, 7, False)
-GAME.black_king_location = (0, 7)
-GAME.board.board[2][6] = Queen(2, 6, True)
-
-GAME.current_player_colour = False
-GAME.board.print_board()
-GAME.is_checkmate_or_stalemate()
-print(GAME.stalemate)
+GAME.board.initialise_board()
+GAME.play()
