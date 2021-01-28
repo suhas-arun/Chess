@@ -1,0 +1,32 @@
+.board {
+    font-family: 'Roboto', sans-serif;
+    margin: 50px auto;
+    border-width: 0px;
+
+}
+
+.board-label {
+    width: 10px;
+}
+
+.board th, td {
+    width: 40px;
+    padding: 10px;
+    vertical-align: auto;
+}
+
+.board td {
+    border: 2px solid;
+}
+
+.square-light {
+    border-width: 2px;
+    border-color: black;
+    background-color: burlywood;
+}
+
+.square-dark {
+    border-width: 5px;
+    border-color: black;
+    background-color: rgb(114, 58, 19);
+}
