@@ -5,10 +5,6 @@
 
 }
 
-.board-label {
-    width: 10px;
-}
-
 .board th, td {
     width: 40px;
     padding: 10px;
@@ -17,16 +13,29 @@
 
 .board td {
     border: 2px solid;
+    border-color: black;
+    font-size: 25px;
+    padding: 0px;
 }
 
 .square-light {
     border-width: 2px;
     border-color: black;
     background-color: burlywood;
+
 }
 
 .square-dark {
     border-width: 5px;
     border-color: black;
     background-color: rgb(114, 58, 19);
+}
+
+.white-piece-True {
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.white-piece-False {
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
 }
