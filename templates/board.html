@@ -38,10 +38,19 @@
                 {% set colour = "dark" %}
                 {% endif %}
 
-                {% if piece %}
-                <td class="square-{{colour}} white-piece-{{piece.colour}}">{{piece}}</td>
+                {% if (outer_loop.index - 1, loop.index - 1) in current_move %}
+                {% set current_move = True %}
                 {% else %}
-                <td class="square-{{colour}}"></td>
+                {% set current_move = False %}
+                {% endif %}
+
+                {% if piece %}
+                <td class="square-{{colour}}-{{current_move}} white-piece-{{piece.colour}}"><a
+                        href="/move?row={{outer_loop.index}}&column={{loop.index}}">{{piece}}</a></td>
+                {% else %}
+                <td class="square-{{colour}}-{{current_move}} empty-square"><a
+                        href="/move?row={{outer_loop.index}}&column={{loop.index}}">&nbsp;</a>
+                </td>
                 {% endif %}
 
                 {% endfor %}
@@ -62,3 +71,5 @@
         </table>
     </div>
 </body>
+
+</html>

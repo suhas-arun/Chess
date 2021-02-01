@@ -547,6 +547,7 @@ class Game:
 
         self.board.board[row][column] = new_piece
 
+
 class Pawn(Piece):
     """Piece with value 1."""
 
@@ -756,3 +757,9 @@ class King(Piece):
         if self.colour:
             return "♔"
         return "♚"
+
+
+if __name__ == "__main__":
+    GAME = Game()
+    GAME.board.initialise_board()
+    GAME.play()
