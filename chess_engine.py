@@ -219,15 +219,8 @@ class Game:
 
     def is_move_blocked(self, current_square, new_square):
         """
-        Checks if a move is blocked by another piece. This only applies to
-        pawns, bishops, rooks and queens.
+        Checks if a move is blocked by another piece.
         """
-        current_row, current_column = current_square
-        piece = self.board.board[current_row][current_column]
-
-        if isinstance(piece, (King, Knight)):
-            return False
-
         squares_passed = self.get_passed_squares(current_square, new_square)
         return any(
             [self.board.board[square[0]][square[1]] for square in squares_passed]
@@ -467,17 +460,21 @@ class Game:
         passed_squares_columns = []
 
         if new_column > current_column:  # King-side castle
-            rook_piece = self.board.board[current_row][7]
+            end_column = 7
+            rook_piece = self.board.board[current_row][end_column]
             passed_squares_columns = list(range(current_column, new_column + 1))
             new_rook_column = new_column - 1
+
         else:  # Queen-side castle
-            rook_piece = self.board.board[current_row][0]
+            end_column = 0
+            rook_piece = self.board.board[current_row][end_column]
             passed_squares_columns = list(range(current_column, new_column - 1, -1))
             new_rook_column = new_column + 1
 
         if (
-            self.is_move_blocked(current_square, (current_row, rook_piece.column))
+            self.is_move_blocked(current_square, (current_row, end_column))
             or king_piece.has_moved
+            or rook_piece is None
             or rook_piece.has_moved
             or (self.current_player_colour and self.white_check)
             or (not self.current_player_colour and self.black_check)
