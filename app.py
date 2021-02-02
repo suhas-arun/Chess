@@ -31,7 +31,6 @@ def move():
     column = int(request.args.get("column")) - 1
     row = int(request.args.get("row")) - 1
     new_square = (row, column)
-    print(new_square)
 
     if len(current_move) == 1:  # The piece is being moved to the new square
         current_square = current_move[0]
@@ -42,7 +41,8 @@ def move():
             current_move.append(new_square)
         else:
             del current_move[:]
-            current_move.append(new_square)
+            if GAME.board.board[row][column]:
+                current_move.append(new_square)
 
     else:  # The piece to be moved is on the new square
         del current_move[:]

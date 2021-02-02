@@ -46,7 +46,10 @@
 
                 {% if piece %}
                 <td class="square-{{colour}}-{{current_move}} white-piece-{{piece.colour}}"><a
-                        href="/move?row={{outer_loop.index}}&column={{loop.index}}">{{piece}}</a></td>
+                        href="/move?row={{outer_loop.index}}&column={{loop.index}}">
+                        <img src="static/img/{{piece.__class__.__name__}}{{piece.colour}}.png">
+                    </a>
+                </td>
                 {% else %}
                 <td class="square-{{colour}}-{{current_move}} empty-square"><a
                         href="/move?row={{outer_loop.index}}&column={{loop.index}}">&nbsp;</a>
