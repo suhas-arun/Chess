@@ -319,13 +319,19 @@ class Game:
             else:
                 self.board.black_pieces.remove(piece_at_new_square)
 
+        self.update_en_passant()
+
         if isinstance(piece, Pawn):
             if self.current_player_colour:
                 if new_row == 0:
                     self.promote_pawn(piece)
+                elif current_row == 6 and new_row == 4:
+                    piece.en_passant_possible = True
             else:
                 if new_row == 7:
                     self.promote_pawn(piece)
+                elif current_row == 1 and new_row == 3:
+                    piece.en_passant_possible = True
 
         if isinstance(piece, (Pawn, Rook, King)):
             piece.has_moved = True
@@ -544,6 +550,20 @@ class Game:
 
         self.board.board[row][column] = new_piece
 
+    def update_en_passant(self):
+        """
+        Sets the 'en passant possible' attribute for all pawns to false
+        after a move is made.
+        """
+        if self.current_player_colour:
+            pieces = self.board.white_pieces
+        else:
+            pieces = self.board.black_pieces
+
+        for piece in pieces:
+            if isinstance(piece, Pawn):
+                piece.en_passant_possible = False
+
 
 class Pawn(Piece):
     """Piece with value 1."""
@@ -552,6 +572,7 @@ class Pawn(Piece):
         super().__init__(row, column, 1, colour)
         self.has_moved = False
         self.direction = 1 if self.colour else -1
+        self.en_passant_possible = False
 
     def generate_moves(self):
         """
