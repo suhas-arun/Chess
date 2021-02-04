@@ -11,7 +11,6 @@ app.debug = True
 GAME = Game()
 GAME.board.initialise_board()
 current_move: list = []
-white_pawn = GAME.board.board[6][4]
 
 
 @app.route("/")
@@ -40,7 +39,6 @@ def move():
             GAME.is_checkmate_or_stalemate()
 
             current_move.append(new_square)
-            print(white_pawn.en_passant_possible)
         else:
             del current_move[:]
             if GAME.board.board[row][column]:

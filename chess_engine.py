@@ -92,6 +92,7 @@ class Game:
         self.black_checkmate = False
         self.stalemate = False
         self.just_castled = False
+        self.en_passant_move = False
 
     def play(self):
         """Controls the overall mechanism of playing the game"""
@@ -196,6 +197,10 @@ class Game:
         """
         Checks if the move abides by the moving rules for that piece.
         """
+        if self.en_passant_move:  # Prevents infinite recursion after en passant
+            self.en_passant_move = False
+            return True
+
         current_row, current_column = current_square
         new_row, new_column = new_square
         piece = self.board.board[current_row][current_column]
@@ -212,7 +217,11 @@ class Game:
 
         if isinstance(piece, Pawn):
             piece_at_square = self.board.board[new_row][new_column]
-            if piece_at_square and piece_at_square.colour != self.current_player_colour:
+            if (
+                piece_at_square
+                and piece_at_square.colour != self.current_player_colour
+                or self.validate_en_passant(current_square, new_square)
+            ):
                 return new_square in piece.get_attacked_squares()
 
         return new_square in piece.generate_moves()
@@ -563,6 +572,36 @@ class Game:
         for piece in pieces:
             if isinstance(piece, Pawn):
                 piece.en_passant_possible = False
+
+    def validate_en_passant(self, current_square, new_square):
+        """Checks if en passant move is valid"""
+        current_row, current_column = current_square
+        new_row, new_column = new_square
+
+        if (
+            (self.current_player_colour and new_row != 2)
+            or (not self.current_player_colour and new_row != 5)
+            or new_column not in (current_column - 1, current_column + 1)
+        ):
+            return False
+
+        en_passant_piece = self.board.board[current_row][new_column]
+
+        if isinstance(en_passant_piece, Pawn):
+            if en_passant_piece.en_passant_possible:
+
+                # Prevents en passant from resulting in self check
+                self.en_passant_move = True
+                if self.validate_move(current_square, new_square):
+                    self.board.board[current_row][new_column] = None
+                    if self.current_player_colour:
+                        self.board.black_pieces.remove(en_passant_piece)
+                    else:
+                        self.board.white_pieces.remove(en_passant_piece)
+                    self.execute_move(current_square, new_square)
+                    return True
+
+        return False
 
 
 class Pawn(Piece):
