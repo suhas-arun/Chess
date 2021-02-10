@@ -93,6 +93,9 @@ class Game:
         self.stalemate = False
         self.just_castled = False
         self.en_passant_move = False
+        self.current_move = []
+        self.show_promotion_box = False
+        self.promotion_square = ()
 
     def play(self):
         """Controls the overall mechanism of playing the game"""
@@ -333,12 +336,14 @@ class Game:
         if isinstance(piece, Pawn):
             if self.current_player_colour:
                 if new_row == 0:
-                    self.promote_pawn(piece)
+                    # self.promote_pawn(piece)
+                    pass
                 elif current_row == 6 and new_row == 4:
                     piece.en_passant_possible = True
             else:
                 if new_row == 7:
-                    self.promote_pawn(piece)
+                    # self.promote_pawn(piece)
+                    pass
                 elif current_row == 1 and new_row == 3:
                     piece.en_passant_possible = True
 

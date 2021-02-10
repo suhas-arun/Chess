@@ -72,6 +72,20 @@
                 <th>h</th>
             </tr>
         </table>
+        {% if show_promotion %}
+        <div class="promotion-box-background">
+            <div class="promotion-box">
+                <a href="/promote?piece=Queen">
+                    <img src="static/img/Queen{{ not current_player }}.png"></a>
+                <a href="/promote?piece=Rook">
+                    <img src="static/img/Rook{{ not current_player }}.png"></a>
+                <a href="/promote?piece=Bishop">
+                    <img src="static/img/Bishop{{ not current_player }}.png"></a>
+                <a href="/promote?piece=Knight">
+                    <img src="static/img/Knight{{ not current_player }}.png"></a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 
