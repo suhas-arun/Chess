@@ -21,6 +21,8 @@ def play():
         current_move=GAME.current_move,
         current_player=GAME.current_player_colour,
         show_promotion=GAME.show_promotion_box,
+        white_pieces_taken=GAME.board.white_pieces_taken,
+        black_pieces_taken=GAME.board.black_pieces_taken,
     )
 
 

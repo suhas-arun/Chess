@@ -12,7 +12,22 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="row">
+        <div class="col my-auto mx-auto">
+            <div class="card player-info text-white bg-dark">
+                <div class="card-header">
+                    <h5 class="card-title current-player-{{ current_player }}">Player 1 (White)</h5>
+                </div>
+                <div class="card-body">
+                    {% for piece in white_pieces_taken %}
+                    <img src="static/img/{{piece.__class__.__name__}}{{piece.colour}}.png">
+                    {% endfor %}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-outline-light">Resign</a>
+                </div>
+            </div>
+        </div>
         <table class="text-center board">
             <tr class="board-label">
                 <th></th>
@@ -28,10 +43,11 @@
             {% for row in board %}
             {% set outer_loop = loop %}
             <tr>
-                <th>{{9 - outer_loop.index}}</th>
+                <th class="board-label">{{9 - outer_loop.index}}</th>
                 {% for piece in row %}
 
-                {% if loop.index % 2 == 0 and outer_loop.index % 2 == 0 or loop.index % 2 == 1 and outer_loop.index % 2
+                {% if loop.index % 2 == 0 and outer_loop.index % 2 == 0 or loop.index % 2 == 1 and outer_loop.index
+                % 2
                 == 1 %}
                 {% set colour = "light" %}
                 {% else %}
@@ -57,7 +73,7 @@
                 {% endif %}
 
                 {% endfor %}
-                <th>{{9 - outer_loop.index}}</th>
+                <th class="board-label">{{9 - outer_loop.index}}</th>
             </tr>
             {% endfor %}
             <tr class="board-label">
@@ -86,6 +102,21 @@
             </div>
         </div>
         {% endif %}
+        <div class="col my-auto mx-auto">
+            <div class="card player-info text-white bg-dark">
+                <div class="card-header">
+                    <h5 class="card-title current-player-{{ not current_player }}">Player 2 (Black)</h5>
+                </div>
+                <div class="card-body">
+                    {% for piece in black_pieces_taken %}
+                    <img src="static/img/{{piece.__class__.__name__}}{{piece.colour}}.png">
+                    {% endfor %}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-outline-light">Resign</a>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 

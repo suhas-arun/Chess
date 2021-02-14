@@ -29,6 +29,9 @@ class Board:
             King(0, 4, False),
         ] + [Pawn(1, column, False) for column in range(8)]
 
+        self.white_pieces_taken = []
+        self.black_pieces_taken = []
+
     def get_square(self, row, column):
         """
         Returns the piece object at a given index in the list.
@@ -233,6 +236,12 @@ class Game:
         """
         Checks if a move is blocked by another piece.
         """
+        current_row, current_column = current_square
+        piece = self.board.board[current_row][current_column]
+
+        if isinstance(piece,  Knight):
+            return False
+
         squares_passed = self.get_passed_squares(current_square, new_square)
         return any(
             [self.board.board[square[0]][square[1]] for square in squares_passed]
@@ -328,8 +337,10 @@ class Game:
         if piece_at_new_square:
             if piece_at_new_square.colour:
                 self.board.white_pieces.remove(piece_at_new_square)
+                self.board.white_pieces_taken.append(piece_at_new_square)
             else:
                 self.board.black_pieces.remove(piece_at_new_square)
+                self.board.black_pieces_taken.append(piece_at_new_square)
 
         self.update_en_passant()
 
@@ -601,8 +612,10 @@ class Game:
                     self.board.board[current_row][new_column] = None
                     if self.current_player_colour:
                         self.board.black_pieces.remove(en_passant_piece)
+                        self.board.black_pieces_taken.append(en_passant_piece)
                     else:
                         self.board.white_pieces.remove(en_passant_piece)
+                        self.board.white_pieces_taken.append(en_passant_piece)
                     self.execute_move(current_square, new_square)
                     return True
 

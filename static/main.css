@@ -1,6 +1,15 @@
+html {
+    background-color: rgb(40, 40, 40);
+}
+
+.row {
+    height: 100%;
+    background-color: rgb(40, 40, 40);
+}
+
 .board {
     font-family: 'Roboto', sans-serif;
-    margin: 50px auto;
+    margin-top: 50px;
     border-width: 0px;
     table-layout: fixed;
 }
@@ -9,6 +18,14 @@
     width: 42px;
     padding: 10px;
     vertical-align: auto;
+}
+
+.board-label {
+    border-style: none;
+    font-family: "Roboto", sans-serif;
+    font-weight: bold;
+    color: white;
+    width: 42px;
 }
 
 .board td {
@@ -85,4 +102,34 @@
 .promotion-box > a > img:hover {
     border-radius: 5px;
     background-color: rgb(150, 150, 150);
+}
+
+.player-info {
+    color: white;
+    margin: 0 50px 0 50px;
+    width: 300px;
+}
+
+.player-info > .card-header > .card-title {
+    text-align: center;
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+
+.player-info > .card-body {
+    height: 180px;
+}
+
+.player-info > .card-body > img {
+    width: 45px;
+}
+
+.player-info > .card-header > .current-player-True {
+    font-weight: bold;
+    color: white;
+}
+
+.player-info > .card-header > .current-player-False {
+    font-weight: normal;
+    color: rgb(150, 150, 150)
 }
