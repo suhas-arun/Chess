@@ -102,6 +102,24 @@
             </div>
         </div>
         {% endif %}
+
+        {% if True in result %}
+        <div class="result-box-background">
+            <div class="card result-box col-md-2 offset-md-5">
+                <div class="card-body">
+                    {% if result[0] %}
+                    <h5 class="card-title mb-4">White wins!</h5>
+                    {% elif result[1] %}
+                    <h5 class="card-title mb-4">Black wins!</h5>
+                    {% else %}
+                    <h5 class="card-title mb-4">Draw!</h5>
+                    {% endif %}
+                    <a href="/rematch" class="btn btn-outline-dark">Rematch</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="col my-auto mx-auto">
             <div class="card player-info text-white bg-dark">
                 <div class="card-header">

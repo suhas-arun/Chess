@@ -78,7 +78,7 @@ html {
     text-decoration: none;
 }
 
-.promotion-box-background {
+.promotion-box-background, .result-box-background {
     background: rgba(0,0,0,.4);
     text-align: center;
     position: fixed;
@@ -132,4 +132,14 @@ html {
 .player-info > .card-header > .current-player-False {
     font-weight: normal;
     color: rgb(150, 150, 150)
+}
+
+.result-box {
+    margin: 200px auto;
+    background-color: white;
+    padding: 5px;
+    display: inline-block;
+    height: auto;
+    border-radius: 8px;
+    vertical-align: middle;
 }

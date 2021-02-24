@@ -23,6 +23,7 @@ def play():
         show_promotion=GAME.show_promotion_box,
         white_pieces_taken=GAME.board.white_pieces_taken,
         black_pieces_taken=GAME.board.black_pieces_taken,
+        result=(GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate)
     )
 
 
@@ -86,6 +87,14 @@ def promote():
     GAME.board.board[row][column] = new_piece
     GAME.show_promotion_box = False
     GAME.promotion_square = ()
+    return redirect("/")
+
+@app.route("/rematch")
+def rematch():
+    """Restarts the game"""
+    global GAME
+    GAME = Game()
+    GAME.board.initialise_board()
     return redirect("/")
 
 
