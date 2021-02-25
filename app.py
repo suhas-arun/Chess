@@ -98,6 +98,24 @@ def rematch():
     GAME.board.initialise_board()
     return redirect("/")
 
+@app.route("/resign", methods=["GET", "POST"])
+def resign():
+    """
+    When the resign button is clicked, a post request is
+    made, returning the colour of the player resigning. If
+    this player is the current player then they have lost.
+    """
+
+    player = request.args.get("player")
+    print(player, str(GAME.current_player_colour))
+    if player == str(GAME.current_player_colour):
+        if player == "True":
+            GAME.black_checkmate = True
+        else:
+            GAME.white_checkmate = True
+    
+    return redirect("/")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
