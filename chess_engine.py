@@ -111,6 +111,7 @@ class Game:
                 print()
                 self.board.print_board()
                 self.is_checkmate_or_stalemate()
+                self.check_draw()
             else:
                 print("Not legal")
 
@@ -239,7 +240,7 @@ class Game:
         current_row, current_column = current_square
         piece = self.board.board[current_row][current_column]
 
-        if isinstance(piece,  Knight):
+        if isinstance(piece, Knight):
             return False
 
         squares_passed = self.get_passed_squares(current_square, new_square)
@@ -620,6 +621,30 @@ class Game:
                     return True
 
         return False
+
+    def check_draw(self):
+        """
+        Checks if the game should be a draw due to both teams
+        having insufficient material to result in a checkmate.
+        This is true for King vs King, King and Knight vs King,
+        and King and Bishop vs King."""
+
+        opponent_pieces = []
+        if len(self.board.white_pieces) == 1:  # white only has the king
+            opponent_pieces = [type(piece) for piece in self.board.black_pieces]
+
+        if len(self.board.black_pieces) == 1:  # black only has the king
+            opponent_pieces = [type(piece) for piece in self.board.white_pieces]
+
+        if (
+            len(opponent_pieces) == 0
+            or len(opponent_pieces) > 2
+            or set([Pawn, Rook, Queen]).issubset(opponent_pieces)
+        ):
+            return
+
+        self.stalemate = True
+        return
 
 
 class Pawn(Piece):

@@ -53,6 +53,7 @@ def move():
                 GAME.promotion_square = (row, column)
 
             GAME.is_checkmate_or_stalemate()
+            GAME.check_draw()
 
             GAME.current_move.append(new_square)
         else:
