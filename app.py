@@ -2,20 +2,6 @@
 
 # TODO: fix bug that allows king to move next to opponent's king.
 
-# AI evaluate board method tests:
-# Test 1: 
-#   e2 e4, d7 d5, e4 d5. Score goes from 0 to 1
-#   d8 d5. Score 0
-#   d1 f3, d5 f3. Score -9
-#   g1 f3. Score 0.
-#   c8 g4, g2 g3, g4 f3. Score -3
-#   f1 g2, f3 g2. Score -6
-#   g3 g4, f2 h1. Score -11.
-# Test 2 (White checkmate):
-#   e2 e4, e7 e5, f1 c4, f8 c5, d1 h5, g8 f6, h5 f7. Score 10000
-# Test 3 (Black checkmate):
-#   f2 f3, e7 e5, g2 g3, d8 h4. Score -10000
-# Test 4 (Draw):
 
 
 from flask import Flask, render_template, request, redirect
