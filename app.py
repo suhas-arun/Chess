@@ -15,6 +15,8 @@ app.debug = True
 GAME = Game()
 GAME.board.initialise_board()
 ai = AI()
+GAME.ai_game = True
+GAME.ai_colour = False
 
 
 @app.route("/")
@@ -46,7 +48,6 @@ def move():
     row = int(request.args.get("row")) - 1
     new_square = (row, column)
 
-
     if len(GAME.current_move) == 1:  # The piece is being moved to the new square
         current_square = GAME.current_move[0]
         if GAME.validate_move(current_square, new_square):
@@ -57,14 +58,14 @@ def move():
             ):
                 GAME.show_promotion_box = True
                 GAME.promotion_square = (row, column)
+                return redirect("/")
 
             GAME.is_checkmate_or_stalemate()
             GAME.check_draw()
 
             GAME.current_move.append(new_square)
-            print()
-            print(ai.get_random_move(GAME.get_valid_moves()))
-            print()
+            if GAME.ai_game:
+                return redirect("/aimove")
 
         else:
             GAME.current_move = []
@@ -98,6 +99,10 @@ def promote():
     GAME.board.board[row][column] = new_piece
     GAME.show_promotion_box = False
     GAME.promotion_square = ()
+
+    if GAME.current_player_colour == GAME.ai_colour:
+        return redirect("/aimove")
+
     return redirect("/")
 
 
@@ -124,6 +129,28 @@ def resign():
             GAME.black_checkmate = True
         else:
             GAME.white_checkmate = True
+
+    return redirect("/")
+
+
+@app.route("/aimove")
+def aimove():
+    """Allows the AI to make a move after the user."""
+
+    current_square, new_square = ai.get_random_move(GAME.get_valid_moves())
+    GAME.execute_move(current_square, new_square)
+    row, column = current_square
+    piece = GAME.board.board[row][column]
+    if isinstance(piece, Pawn) and (
+        piece.colour and row == 0 or not piece.colour and row == 7
+    ):
+        GAME.show_promotion_box = True
+        GAME.promotion_square = (row, column)
+
+    GAME.is_checkmate_or_stalemate()
+    GAME.check_draw()
+
+    GAME.current_move = [current_square, new_square]
 
     return redirect("/")
 

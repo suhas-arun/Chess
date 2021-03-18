@@ -99,6 +99,8 @@ class Game:
         self.current_move = []
         self.show_promotion_box = False
         self.promotion_square = ()
+        self.ai_game = False
+        self.ai_colour = None
 
     def play(self):
         """Controls the overall mechanism of playing the game"""
