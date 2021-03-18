@@ -646,6 +646,28 @@ class Game:
         self.stalemate = True
         return
 
+    def get_all_moves(self):
+        """
+        Returns list of all moves (not validated). This is done by
+        iterating through each piece on the board and generating
+        moves for each piece."""
+
+        moves = []
+        for piece in self.board.white_pieces + self.board.black_pieces:
+            moves += [
+                [(piece.row, piece.column), new_square]
+                for new_square in piece.generate_moves()
+            ]
+        return moves
+
+    def get_valid_moves(self):
+        """Filters the list of all moves by the ones which are valid"""
+        valid_moves = []
+        for current_square, new_square in self.get_all_moves():
+            if self.validate_move(current_square, new_square):
+                valid_moves.append([current_square, new_square])
+        return valid_moves
+
 
 class Pawn(Piece):
     """Piece with value 1."""

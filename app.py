@@ -3,7 +3,6 @@
 # TODO: fix bug that allows king to move next to opponent's king.
 
 
-
 from flask import Flask, render_template, request, redirect
 from chess_engine import Game, Pawn, Queen, Rook, Bishop, Knight
 from ai import AI
@@ -15,6 +14,7 @@ app.debug = True
 
 GAME = Game()
 GAME.board.initialise_board()
+ai = AI()
 
 
 @app.route("/")
@@ -28,7 +28,7 @@ def play():
         show_promotion=GAME.show_promotion_box,
         white_pieces_taken=GAME.board.white_pieces_taken,
         black_pieces_taken=GAME.board.black_pieces_taken,
-        result=(GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate)
+        result=(GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate),
     )
 
 
@@ -46,6 +46,7 @@ def move():
     row = int(request.args.get("row")) - 1
     new_square = (row, column)
 
+
     if len(GAME.current_move) == 1:  # The piece is being moved to the new square
         current_square = GAME.current_move[0]
         if GAME.validate_move(current_square, new_square):
@@ -60,8 +61,11 @@ def move():
             GAME.is_checkmate_or_stalemate()
             GAME.check_draw()
 
-            print(AI().evaluate_board(GAME.board, GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate))
             GAME.current_move.append(new_square)
+            print()
+            print(ai.get_random_move(GAME.get_valid_moves()))
+            print()
+
         else:
             GAME.current_move = []
             if GAME.board.board[row][column]:
@@ -96,6 +100,7 @@ def promote():
     GAME.promotion_square = ()
     return redirect("/")
 
+
 @app.route("/rematch")
 def rematch():
     """Restarts the game"""
@@ -103,6 +108,7 @@ def rematch():
     GAME = Game()
     GAME.board.initialise_board()
     return redirect("/")
+
 
 @app.route("/resign", methods=["GET", "POST"])
 def resign():
@@ -118,7 +124,7 @@ def resign():
             GAME.black_checkmate = True
         else:
             GAME.white_checkmate = True
-    
+
     return redirect("/")
 
 

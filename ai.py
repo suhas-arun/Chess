@@ -1,7 +1,10 @@
 """AI"""
+import random
+
 
 class AI:
     """AI"""
+
     WHITE_CHECKMATE = 10000
     BLACK_CHECKMATE = -10000
     STALEMATE = 0
@@ -12,7 +15,7 @@ class AI:
         White pieces are worth positive points and black pieces are worth
         negative points.
         """
-    
+
         score = 0
         if white_checkmate:
             return self.WHITE_CHECKMATE
@@ -22,6 +25,9 @@ class AI:
             return self.STALEMATE
         for piece in board.white_pieces + board.black_pieces:
             score += piece.get_value()
-        
+
         return score
-    
+
+    def get_random_move(self, valid_moves):
+        """Returns a random valid move."""
+        return random.choice(valid_moves)
