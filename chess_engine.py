@@ -660,6 +660,11 @@ class Game:
                 [(piece.row, piece.column), new_square]
                 for new_square in piece.generate_moves()
             ]
+            if isinstance(piece, Pawn):
+                moves += [
+                    [(piece.row, piece.column), new_square]
+                    for new_square in piece.get_attacked_squares()
+                ]
         return moves
 
     def get_valid_moves(self):
@@ -698,10 +703,14 @@ class Pawn(Piece):
         Pawns can move 1 square forward diagonally when they take an opponent's
         piece.
         """
-        moves = [
-            (self.row - self.direction, self.column - 1),
-            (self.row - self.direction, self.column + 1),
-        ]
+        moves = []
+        new_row = self.row - self.direction
+        if 0 <= new_row < 8:
+            if self.column > 0:
+                moves.append((new_row, self.column - 1))
+            if self.column < 7:
+                moves.append((new_row, self.column + 1))
+
         return moves
 
     def __str__(self):

@@ -63,6 +63,9 @@ def move():
             GAME.is_checkmate_or_stalemate()
             GAME.check_draw()
 
+            if GAME.white_checkmate or GAME.black_checkmate or GAME.stalemate:
+                return redirect("/")
+
             GAME.current_move.append(new_square)
             if GAME.ai_game:
                 return redirect("/aimove")
@@ -101,6 +104,9 @@ def promote():
     GAME.promotion_square = ()
 
     if GAME.current_player_colour == GAME.ai_colour:
+        if GAME.white_checkmate or GAME.black_checkmate or GAME.stalemate:
+            return redirect("/")
+
         return redirect("/aimove")
 
     return redirect("/")
@@ -137,7 +143,12 @@ def resign():
 def aimove():
     """Allows the AI to make a move after the user."""
 
-    current_square, new_square = ai.get_random_move(GAME.get_valid_moves())
+    move = ai.get_greedy_ai_move(GAME)
+    if move == ():
+        current_square, new_square = ai.get_random_move(GAME.get_valid_moves())
+    else:
+        current_square, new_square = move
+
     GAME.execute_move(current_square, new_square)
     row, column = current_square
     piece = GAME.board.board[row][column]
