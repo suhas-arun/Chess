@@ -8,7 +8,7 @@ class AI:
     WHITE_CHECKMATE = 10000
     BLACK_CHECKMATE = -10000
     STALEMATE = 0
-    DEPTH = 5
+    DEPTH = 2
 
     def __init__(self):
         self.minimax_best_moves = []

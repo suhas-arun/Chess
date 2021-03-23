@@ -1,7 +1,8 @@
 """Flask webapp"""
 
-# TODO: fix lag so that player move shows up before AI thinking
+# TODO: fix lag so that player move shows up before AI thinking (fix order of redirects)
 # TODO: fix bug that allows king to move next to opponent's king.
+# TODO: allow draw by agreement
 
 
 from flask import Flask, render_template, request, redirect
@@ -32,6 +33,7 @@ def play():
         white_pieces_taken=GAME.board.white_pieces_taken,
         black_pieces_taken=GAME.board.black_pieces_taken,
         result=(GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate),
+        # aimove=GAME.ai_colour==GAME.current_player_colour
     )
 
 
