@@ -1,5 +1,6 @@
 """Flask webapp"""
 
+# TODO: fix lag so that player move shows up before AI thinking
 # TODO: fix bug that allows king to move next to opponent's king.
 
 
@@ -143,11 +144,13 @@ def resign():
 def aimove():
     """Allows the AI to make a move after the user."""
 
-    move = ai.get_greedy_ai_move(GAME)
-    if move == ():
-        current_square, new_square = ai.get_random_move(GAME.get_valid_moves())
+    # move = ai.get_greedy_ai_move(GAME)
+    ai.get_ai_move_minimax(GAME, AI.DEPTH, GAME.current_player_colour)
+    moves = ai.minimax_best_moves
+    if moves:
+        current_square, new_square = ai.get_random_move(moves)
     else:
-        current_square, new_square = move
+        current_square, new_square = ai.get_random_move(GAME.get_valid_moves())
 
     GAME.execute_move(current_square, new_square)
     row, column = current_square
