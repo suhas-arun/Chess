@@ -453,14 +453,10 @@ class Game:
         This is done by checking if there are any possible moves for any of the
         pieces on the board.
         """
-        if self.current_player_colour:  # Current player is white
-            for piece in self.board.white_pieces:
-                current_square = (piece.row, piece.column)
-                for new_square in piece.generate_moves():
-                    if self.validate_move(current_square, new_square):
-                        return
+        if self.get_valid_moves():
+            return
 
-            # No valid moves
+        if self.current_player_colour:  # Current player is white
             self.is_king_in_check()
             if self.white_check:
                 self.black_checkmate = True
@@ -468,13 +464,6 @@ class Game:
                 self.stalemate = True
 
         else:  # Current player is black
-            for piece in self.board.black_pieces:
-                current_square = (piece.row, piece.column)
-                for new_square in piece.generate_moves():
-                    if self.validate_move(current_square, new_square):
-                        return
-
-            # No valid moves
             self.is_king_in_check()
             if self.black_check:
                 self.white_checkmate = True

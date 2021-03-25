@@ -114,6 +114,9 @@ class AI:
             gamestate.board.board[new_row][new_column] = current_piece
             gamestate.current_player_colour = not gamestate.current_player_colour
 
+            current_piece.row = new_row
+            current_piece.column = new_column
+
             if piece_at_new_square:
                 if piece_at_new_square.colour:
                     gamestate.board.white_pieces.remove(piece_at_new_square)
@@ -128,6 +131,9 @@ class AI:
             gamestate.board.board[current_row][current_column] = current_piece
             gamestate.board.board[new_row][new_column] = piece_at_new_square
             gamestate.current_player_colour = not gamestate.current_player_colour
+
+            current_piece.row = current_row
+            current_piece.column = current_column
 
             if piece_at_new_square:
                 if piece_at_new_square.colour:

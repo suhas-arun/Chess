@@ -1,6 +1,6 @@
 """Flask webapp"""
 
-# TODO: fix lag so that player move shows up before AI thinking (fix order of redirects)
+# TODO: higher depth ai has bugs. can move in check etc.
 # TODO: fix bug that allows king to move next to opponent's king.
 # TODO: allow draw by agreement
 
@@ -33,7 +33,7 @@ def play():
         white_pieces_taken=GAME.board.white_pieces_taken,
         black_pieces_taken=GAME.board.black_pieces_taken,
         result=(GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate),
-        # aimove=GAME.ai_colour==GAME.current_player_colour
+        aimove=GAME.ai_colour == GAME.current_player_colour,
     )
 
 
@@ -70,8 +70,6 @@ def move():
                 return redirect("/")
 
             GAME.current_move.append(new_square)
-            if GAME.ai_game:
-                return redirect("/aimove")
 
         else:
             GAME.current_move = []
