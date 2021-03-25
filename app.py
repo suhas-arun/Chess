@@ -1,7 +1,6 @@
 """Flask webapp"""
 
-# fix promotion against AI.
-# fix bugs where multiple moves happen at once (undo doesnt happen?)
+# fix bugs where multiple moves happen at once (undo doesnt happen? or maybe redirects?)
 
 # TODO: higher depth ai has bugs. can move in check etc.
 # TODO: fix bug that allows king to move next to opponent's king.
@@ -108,7 +107,6 @@ def promote():
     GAME.promotion_square = ()
 
     if GAME.current_player_colour == GAME.ai_colour:
-        GAME.current_player_colour = not GAME.current_player_colour
         if GAME.white_checkmate or GAME.black_checkmate or GAME.stalemate:
             return redirect("/")
 
