@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>Chess | Play</title>
-    {% if aimove and not True in result %}
+    {% if aimove and not True in result and not show_promotion %}
     <meta http-equiv="refresh" content="0; URL=/aimove" />
     {% endif %}
 </head>
@@ -106,7 +106,7 @@
         </div>
         {% endif %}
 
-        {% if aimove %}
+        {% if aimove and not show_promotion %}
         <div class="move-blocker">
         </div>
         {% endif %}

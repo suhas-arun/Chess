@@ -850,7 +850,7 @@ class King(Piece):
     """
 
     def __init__(self, row, column, colour):
-        super().__init__(row, column, 10000, colour)
+        super().__init__(row, column, 0, colour)
         self.has_moved = False
 
     def generate_moves(self):
