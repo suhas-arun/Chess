@@ -56,6 +56,7 @@ class AI:
                 else:
                     gamestate.board.black_pieces.remove(piece_at_new_square)
 
+            gamestate.is_checkmate_or_stalemate()
             # Evaluate the new board state
             score = (
                 self.evaluate_board(
@@ -123,6 +124,7 @@ class AI:
                 else:
                     gamestate.board.black_pieces.remove(piece_at_new_square)
 
+            gamestate.is_checkmate_or_stalemate()
             score = -1 * self.get_ai_move_minimax(
                 gamestate, depth - 1, not current_player
             )
@@ -140,6 +142,8 @@ class AI:
                     gamestate.board.white_pieces.append(piece_at_new_square)
                 else:
                     gamestate.board.black_pieces.append(piece_at_new_square)
+
+            gamestate.is_checkmate_or_stalemate()
 
             # Check if best score
             if score > best_score:

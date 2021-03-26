@@ -447,14 +447,25 @@ class Game:
                     else:
                         self.black_check = True
 
+    # TODO: FIX THIS METHOD
     def is_checkmate_or_stalemate(self):
         """
         Determines whether the current player is in checkmate or stalemate.
         This is done by checking if there are any possible moves for any of the
         pieces on the board.
         """
-        if self.get_valid_moves():
-            return
+        # if len(self.get_valid_moves()) > 0:
+        #     return
+        if self.current_player_colour:  # Current player is white
+            pieces = self.board.white_pieces
+        else:
+            pieces = self.board.black_pieces
+
+        for piece in pieces:
+            current_square = (piece.row, piece.column)
+            for new_square in piece.generate_moves():
+                if self.validate_move(current_square, new_square):
+                    return
 
         if self.current_player_colour:  # Current player is white
             self.is_king_in_check()
