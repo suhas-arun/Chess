@@ -454,8 +454,7 @@ class Game:
         This is done by checking if there are any possible moves for any of the
         pieces on the board.
         """
-        # if len(self.get_valid_moves()) > 0:
-        #     return
+
         if self.current_player_colour:  # Current player is white
             pieces = self.board.white_pieces
         else:
@@ -463,7 +462,10 @@ class Game:
 
         for piece in pieces:
             current_square = (piece.row, piece.column)
-            for new_square in piece.generate_moves():
+            moves = piece.generate_moves()
+            if isinstance(piece, Pawn):
+                moves += piece.get_attacked_squares()
+            for new_square in moves:
                 if self.validate_move(current_square, new_square):
                     return
 
@@ -641,7 +643,9 @@ class Game:
         if (
             len(opponent_pieces) == 0
             or len(opponent_pieces) > 2
-            or set([Pawn, Rook, Queen]).issubset(opponent_pieces)
+            or Pawn in opponent_pieces
+            or Rook in opponent_pieces
+            or Queen in opponent_pieces
         ):
             return
 
