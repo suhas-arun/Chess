@@ -56,7 +56,6 @@ class AI:
                 else:
                     gamestate.board.black_pieces.remove(piece_at_new_square)
 
-            gamestate.is_checkmate_or_stalemate()
             # Evaluate the new board state
             score = (
                 self.evaluate_board(
@@ -105,7 +104,8 @@ class AI:
             )
 
         best_score = self.BLACK_CHECKMATE
-        for move in gamestate.get_valid_moves():
+        valid_moves = gamestate.get_valid_moves()
+        for move in valid_moves:
             # Execute the move
             (current_row, current_column), (new_row, new_column) = move
             current_piece = gamestate.board.board[current_row][current_column]
@@ -113,7 +113,17 @@ class AI:
 
             gamestate.board.board[current_row][current_column] = None
             gamestate.board.board[new_row][new_column] = current_piece
+
+            if type(current_piece).__name__ == "King":
+                if current_player:
+                    gamestate.white_king_location = (new_row, new_column)
+                else:
+                    gamestate.black_king_location = (new_row, new_column)
+
             gamestate.current_player_colour = not gamestate.current_player_colour
+
+            if current_piece is None:
+                return self.BLACK_CHECKMATE
 
             current_piece.row = new_row
             current_piece.column = new_column
@@ -125,6 +135,8 @@ class AI:
                     gamestate.board.black_pieces.remove(piece_at_new_square)
 
             gamestate.is_checkmate_or_stalemate()
+            gamestate.check_draw()
+
             score = -1 * self.get_ai_move_minimax(
                 gamestate, depth - 1, not current_player
             )
@@ -132,6 +144,13 @@ class AI:
             # Undo the move
             gamestate.board.board[current_row][current_column] = current_piece
             gamestate.board.board[new_row][new_column] = piece_at_new_square
+
+            if type(current_piece).__name__ == "King":
+                if current_player:
+                    gamestate.white_king_location = (current_row, current_column)
+                else:
+                    gamestate.black_king_location = (current_row, current_column)
+
             gamestate.current_player_colour = not gamestate.current_player_colour
 
             current_piece.row = current_row
@@ -143,7 +162,9 @@ class AI:
                 else:
                     gamestate.board.black_pieces.append(piece_at_new_square)
 
-            gamestate.is_checkmate_or_stalemate()
+            gamestate.white_checkmate = False
+            gamestate.black_checkmate = False
+            gamestate.stalemate = False
 
             # Check if best score
             if score > best_score:

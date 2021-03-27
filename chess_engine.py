@@ -447,7 +447,6 @@ class Game:
                     else:
                         self.black_check = True
 
-    # TODO: FIX THIS METHOD
     def is_checkmate_or_stalemate(self):
         """
         Determines whether the current player is in checkmate or stalemate.
@@ -610,21 +609,30 @@ class Game:
 
         if isinstance(en_passant_piece, Pawn):
             if en_passant_piece.en_passant_possible:
-
-                # Prevents en passant from resulting in self check
                 self.en_passant_move = True
                 if self.validate_move(current_square, new_square):
-                    self.board.board[current_row][new_column] = None
-                    if self.current_player_colour:
-                        self.board.black_pieces.remove(en_passant_piece)
-                        self.board.black_pieces_taken.append(en_passant_piece)
-                    else:
-                        self.board.white_pieces.remove(en_passant_piece)
-                        self.board.white_pieces_taken.append(en_passant_piece)
-                    self.execute_move(current_square, new_square)
+                    if self.current_player_colour == self.ai_colour:
+                        return True
+                    self.execute_en_passant_move(
+                        current_square, new_square, en_passant_piece
+                    )
                     return True
 
         return False
+
+    def execute_en_passant_move(self, current_square, new_square, piece):
+        """Executes an en passant move."""
+        current_row, _ = current_square
+        _, new_column = new_square
+
+        self.board.board[current_row][new_column] = None
+        if self.current_player_colour:
+            self.board.black_pieces.remove(piece)
+            self.board.black_pieces_taken.append(piece)
+        else:
+            self.board.white_pieces.remove(piece)
+            self.board.white_pieces_taken.append(piece)
+        self.execute_move(current_square, new_square)
 
     def check_draw(self):
         """

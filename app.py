@@ -1,8 +1,5 @@
 """Flask webapp"""
 
-# TODO: FIX CHECKMATE ISSUES. White checkmate set to true 
-# fix bugs where multiple moves happen at once (undo doesnt happen? or maybe redirects?)
-
 # TODO: higher depth ai has bugs. can move in check etc.
 # TODO: fix bug that allows king to move next to opponent's king.
 # TODO: allow draw by agreement
@@ -73,7 +70,6 @@ def move():
                 return redirect("/")
 
             GAME.current_move.append(new_square)
-            print(ai.evaluate_board(GAME.board, GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate))
         else:
             GAME.current_move = []
             if GAME.board.board[row][column]:
@@ -168,7 +164,7 @@ def aimove():
     GAME.check_draw()
 
     GAME.current_move = [current_square, new_square]
-    print(ai.evaluate_board(GAME.board, GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate))
+
     return redirect("/")
 
 
