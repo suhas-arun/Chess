@@ -1,8 +1,6 @@
 """Flask webapp"""
 
-# TODO: higher depth ai has bugs. can move in check etc.
 # TODO: fix bug that allows king to move next to opponent's king.
-# TODO: allow draw by agreement
 
 
 from flask import Flask, render_template, request, redirect
@@ -148,17 +146,19 @@ def aimove():
     moves = ai.minimax_best_moves
     if moves:
         current_square, new_square = ai.get_random_move(moves)
+        while not GAME.validate_move(current_square, new_square):
+            current_square, new_square = ai.get_random_move(moves)
     else:
         current_square, new_square = ai.get_random_move(GAME.get_valid_moves())
 
     GAME.execute_move(current_square, new_square)
-    row, column = current_square
+    row, column = new_square
     piece = GAME.board.board[row][column]
     if isinstance(piece, Pawn) and (
         piece.colour and row == 0 or not piece.colour and row == 7
     ):
-        GAME.show_promotion_box = True
-        GAME.promotion_square = (row, column)
+        GAME.promotion_square = (new_square[0], new_square[1])
+        return redirect("/promote?piece=Queen")
 
     GAME.is_checkmate_or_stalemate()
     GAME.check_draw()

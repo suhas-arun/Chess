@@ -1,5 +1,6 @@
 """AI"""
 import random
+from chess_engine import King, Queen, Pawn
 
 
 class AI:
@@ -104,8 +105,7 @@ class AI:
             )
 
         best_score = self.BLACK_CHECKMATE
-        valid_moves = gamestate.get_valid_moves()
-        for move in valid_moves:
+        for move in gamestate.get_valid_moves():
             # Execute the move
             (current_row, current_column), (new_row, new_column) = move
             current_piece = gamestate.board.board[current_row][current_column]
@@ -114,12 +114,25 @@ class AI:
             gamestate.board.board[current_row][current_column] = None
             gamestate.board.board[new_row][new_column] = current_piece
 
-            if type(current_piece).__name__ == "King":
+            if isinstance(current_piece, King):
                 if current_player:
                     gamestate.white_king_location = (new_row, new_column)
                 else:
                     gamestate.black_king_location = (new_row, new_column)
 
+            elif isinstance(current_piece, Pawn):
+                if current_piece.colour and new_row == 0:
+                    new_piece = Queen(new_row, new_column, True)
+                    gamestate.board.white_pieces.remove(current_piece)
+                    gamestate.board.white_pieces.append(new_piece)
+                    gamestate.board.board[new_row][new_column] = new_piece
+                    
+                elif not current_piece.colour and new_row == 7:
+                    new_piece = Queen(new_row, new_column, False)
+                    gamestate.board.black_pieces.remove(current_piece)
+                    gamestate.board.black_pieces.append(new_piece)
+                    gamestate.board.board[new_row][new_column] = new_piece
+                
             gamestate.current_player_colour = not gamestate.current_player_colour
 
             if current_piece is None:
@@ -145,11 +158,19 @@ class AI:
             gamestate.board.board[current_row][current_column] = current_piece
             gamestate.board.board[new_row][new_column] = piece_at_new_square
 
-            if type(current_piece).__name__ == "King":
+            if isinstance(current_piece, King):
                 if current_player:
                     gamestate.white_king_location = (current_row, current_column)
                 else:
                     gamestate.black_king_location = (current_row, current_column)
+
+            elif isinstance(current_piece, Pawn):
+                if current_piece.colour and new_row == 0:
+                    gamestate.board.white_pieces.append(current_piece)
+                    gamestate.board.white_pieces.remove(new_piece)
+                elif not current_piece.colour and new_row == 7:
+                    gamestate.board.black_pieces.append(current_piece)
+                    gamestate.board.black_pieces.remove(new_piece)
 
             gamestate.current_player_colour = not gamestate.current_player_colour
 

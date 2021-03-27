@@ -868,7 +868,7 @@ class Queen(Piece):
 
 class King(Piece):
     """
-    Piece initialised with value 10000. If this piece is attacked and it has no
+    Piece initialised with value 0. If this piece is attacked and it has no
     legal moves, the game is over.
     """
 
