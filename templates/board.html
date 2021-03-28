@@ -106,6 +106,18 @@
         </div>
         {% endif %}
 
+        {% if start_menu %}
+        <div class="result-box-background">
+            <div class="card start-menu col-md-2 offset-md-5">
+                <div class="card-body">
+                    <a href="/setup?mode=2player" class="btn btn-outline-dark">2 Player</a>
+                    <a href="/setup?mode=aiwhite" class="btn btn-outline-dark mt-2">Play Against AI (White)</a>
+                    <a href="/setup?mode=aiblack" class="btn btn-outline-dark mt-2">Play Against AI (Black)</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {% if aimove and not show_promotion %}
         <div class="move-blocker">
         </div>

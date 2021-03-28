@@ -101,6 +101,7 @@ class Game:
         self.promotion_square = ()
         self.ai_game = False
         self.ai_colour = None
+        self.in_progress = False
 
     def play(self):
         """Controls the overall mechanism of playing the game"""

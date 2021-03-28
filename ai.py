@@ -126,13 +126,13 @@ class AI:
                     gamestate.board.white_pieces.remove(current_piece)
                     gamestate.board.white_pieces.append(new_piece)
                     gamestate.board.board[new_row][new_column] = new_piece
-                    
+
                 elif not current_piece.colour and new_row == 7:
                     new_piece = Queen(new_row, new_column, False)
                     gamestate.board.black_pieces.remove(current_piece)
                     gamestate.board.black_pieces.append(new_piece)
                     gamestate.board.board[new_row][new_column] = new_piece
-                
+
             gamestate.current_player_colour = not gamestate.current_player_colour
 
             if current_piece is None:

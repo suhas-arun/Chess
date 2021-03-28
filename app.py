@@ -15,8 +15,6 @@ app.debug = True
 GAME = Game()
 GAME.board.initialise_board()
 ai = AI()
-GAME.ai_game = True
-GAME.ai_colour = False
 
 
 @app.route("/")
@@ -32,6 +30,7 @@ def play():
         black_pieces_taken=GAME.board.black_pieces_taken,
         result=(GAME.white_checkmate, GAME.black_checkmate, GAME.stalemate),
         aimove=GAME.ai_colour == GAME.current_player_colour,
+        start_menu=not GAME.in_progress,
     )
 
 
@@ -164,6 +163,28 @@ def aimove():
     GAME.check_draw()
 
     GAME.current_move = [current_square, new_square]
+
+    return redirect("/")
+
+
+@app.route("/setup", methods=["GET", "POST"])
+def setup():
+    """Sets up the game."""
+    global GAME
+    game_mode = request.args.get("mode")
+    GAME = Game()
+    GAME.board.initialise_board()
+    GAME.in_progress = True
+    if game_mode == "2player":
+        GAME.ai_game = False
+        GAME.ai_colour = None
+    elif game_mode == "aiwhite":
+        GAME.ai_game = True
+        GAME.ai_colour = False
+    elif game_mode == "aiblack":
+        GAME.ai_game = True
+        GAME.ai_colour = True
+        return redirect("/aimove")
 
     return redirect("/")
 
