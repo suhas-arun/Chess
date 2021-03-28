@@ -417,6 +417,8 @@ class Game:
                             and (current_row, current_column)
                             in piece.get_attacked_squares()
                         )
+                        or isinstance(piece, King)
+                        and (current_row, current_column) in piece.generate_moves()
                     ):
                         if self.current_player_colour:
                             self.white_check = True

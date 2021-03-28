@@ -1,7 +1,5 @@
 """Flask webapp"""
 
-# TODO: fix bug that allows king to move next to opponent's king.
-
 
 from flask import Flask, render_template, request, redirect
 from chess_engine import Game, Pawn, Queen, Rook, Bishop, Knight
