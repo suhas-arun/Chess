@@ -18,7 +18,7 @@ class AI:
         """
         Returns the score for the board based on the pieces of the two players.
         White pieces are worth positive points and black pieces are worth
-        negative points.
+        negative points. Checkmate and stalemate are worth a constant value.
         """
 
         score = 0
@@ -85,6 +85,7 @@ class AI:
             elif score == best_score:
                 best_moves.append(move)
 
+        # If there are no best moves, return a random move.
         if best_moves:
             return self.get_random_move(best_moves)
         return self.get_random_move(gamestate.get_valid_moves())
@@ -114,12 +115,14 @@ class AI:
             gamestate.board.board[current_row][current_column] = None
             gamestate.board.board[new_row][new_column] = current_piece
 
+            # Update King's location
             if isinstance(current_piece, King):
                 if current_player:
                     gamestate.white_king_location = (new_row, new_column)
                 else:
                     gamestate.black_king_location = (new_row, new_column)
 
+            # Execute pawn promotion
             elif isinstance(current_piece, Pawn):
                 if current_piece.colour and new_row == 0:
                     new_piece = Queen(new_row, new_column, True)
@@ -133,6 +136,7 @@ class AI:
                     gamestate.board.black_pieces.append(new_piece)
                     gamestate.board.board[new_row][new_column] = new_piece
 
+            # Switch player
             gamestate.current_player_colour = not gamestate.current_player_colour
 
             if current_piece is None:
@@ -150,6 +154,7 @@ class AI:
             gamestate.is_checkmate_or_stalemate()
             gamestate.check_draw()
 
+            # Evaluate score for gamestate recursively
             score = -1 * self.get_ai_move_minimax(
                 gamestate, depth - 1, not current_player
             )
@@ -164,6 +169,7 @@ class AI:
                 else:
                     gamestate.black_king_location = (current_row, current_column)
 
+            # Undo pawn promotion
             elif isinstance(current_piece, Pawn):
                 if current_piece.colour and new_row == 0:
                     gamestate.board.white_pieces.append(current_piece)
@@ -172,6 +178,7 @@ class AI:
                     gamestate.board.black_pieces.append(current_piece)
                     gamestate.board.black_pieces.remove(new_piece)
 
+            # Switch player back
             gamestate.current_player_colour = not gamestate.current_player_colour
 
             current_piece.row = current_row
@@ -187,7 +194,7 @@ class AI:
             gamestate.black_checkmate = False
             gamestate.stalemate = False
 
-            # Check if best score
+            # Check if best score and update list of best moves
             if score > best_score:
                 best_score = score
                 if depth == self.DEPTH:

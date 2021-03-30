@@ -32,14 +32,8 @@ class Board:
         self.white_pieces_taken = []
         self.black_pieces_taken = []
 
-    def get_square(self, row, column):
-        """
-        Returns the piece object at a given index in the list.
-        """
-        return self.board[row][column]
-
     def print_board(self):
-        """Prints the board list row by row, space-separated."""
+        """Prints the board list row by row, tab-separated."""
         print("\t".join(self.ranks) + "\n")
         for row_number, row in enumerate(self.board):
             print("\t".join([str(i) for i in row]) + f"\t{8 - row_number}")
@@ -82,7 +76,7 @@ class Piece:
 
 
 class Game:
-    """Controls the mechanisms of the game"""
+    """Controls the overall mechanisms of the game."""
 
     def __init__(self):
         self.board = Board()
@@ -94,17 +88,17 @@ class Game:
         self.white_checkmate = False
         self.black_checkmate = False
         self.stalemate = False
-        self.just_castled = False
-        self.en_passant_move = False
         self.current_move = []
         self.show_promotion_box = False
         self.promotion_square = ()
         self.ai_game = False
         self.ai_colour = None
         self.in_progress = False
+        self.__just_castled = False
+        self.__en_passant_move = False
 
     def play(self):
-        """Controls the overall mechanism of playing the game"""
+        """Allows the game to played in the terminal (without a GUI)."""
         self.board.print_board()
         while not (self.white_checkmate or self.black_checkmate or self.stalemate):
             print("\nWhite:" if self.current_player_colour else "\nBlack:")
@@ -129,7 +123,9 @@ class Game:
         """
         Takes input for a move. This is done by taking input for the current
         square that the piece to be moved is on, and the square where the piece
-        is to be moved.
+        is to be moved. The squares are described using the standard algebraic
+        notation (1-8 for rows, a-h for columns). This is only used when
+        playing the game without a GUI.
         """
         current_column, current_row = list(input("Piece (xy): "))
         new_column, new_row = list(input("Square (x y): "))
@@ -143,7 +139,8 @@ class Game:
         """
         Validates a move by checking if the piece is allowed to move to the new
         square and if the new square does not have another piece of the same
-        colour.
+        colour. It also checks if the move results in the player's own king
+        being in check, in which case the move is invalid.
         """
         current_row, current_column = current_square
         new_row, new_column = new_square
@@ -151,16 +148,18 @@ class Game:
         current_piece = self.board.board[current_row][current_column]
         piece_at_new_square = self.board.board[new_row][new_column]
 
-        if not self.is_move_legal(current_square, new_square) or self.is_move_blocked(
+        # Check if move is legal for that type of piece and if move is blocked
+        if not self.__is_move_legal(
             current_square, new_square
-        ):
+        ) or self.__is_move_blocked(current_square, new_square):
             return False
 
+        # Check if there is a piece at the new square of the same colour
         if piece_at_new_square is not None:
             if current_piece.colour == piece_at_new_square.colour:
                 return False
 
-        self.is_king_in_check()
+        self.__is_king_in_check()
 
         # check if move is castle
         if isinstance(current_piece, King):
@@ -169,10 +168,13 @@ class Game:
                 and new_column == current_column + 2
                 or new_column == current_column - 2
             ):
-                return self.validate_castling_move(current_square, new_square)
+                return self.__validate_castling_move(current_square, new_square)
+
+        # Check if the move puts the player's own king in check:
 
         valid = True
 
+        # Execute the move
         self.board.board[current_row][current_column] = None
         self.board.board[new_row][new_column] = current_piece
 
@@ -180,35 +182,38 @@ class Game:
             if isinstance(current_piece, King):
                 self.white_king_location = (new_row, new_column)
 
-            self.is_king_in_check()
-            if self.white_check:
+            self.__is_king_in_check()
+
+            if self.white_check:  # Move puts own king in check => invalid
                 valid = False
 
             if isinstance(current_piece, King):
                 self.white_king_location = (current_row, current_column)
 
-        else:
+        else:  # The current player is black
             if isinstance(current_piece, King):
                 self.black_king_location = (new_row, new_column)
 
-            self.is_king_in_check()
+            self.__is_king_in_check()
+
             if self.black_check:
                 valid = False
 
             if isinstance(current_piece, King):
                 self.black_king_location = (current_row, current_column)
 
+        # Undo the move
         self.board.board[current_row][current_column] = current_piece
         self.board.board[new_row][new_column] = piece_at_new_square
 
         return valid
 
-    def is_move_legal(self, current_square, new_square):
+    def __is_move_legal(self, current_square, new_square):
         """
         Checks if the move abides by the moving rules for that piece.
         """
-        if self.en_passant_move:  # Prevents infinite recursion after en passant
-            self.en_passant_move = False
+        if self.__en_passant_move:  # Stops infinite recursion after en passant
+            self.__en_passant_move = False
             return True
 
         current_row, current_column = current_square
@@ -217,6 +222,7 @@ class Game:
         if piece is None or piece.colour != self.current_player_colour:
             return False
 
+        # Allows castling moves
         if isinstance(piece, King):
             if (
                 new_row == current_row
@@ -225,20 +231,23 @@ class Game:
             ):
                 return True
 
+        # Allows diagonal attacks from pawns
         if isinstance(piece, Pawn):
             piece_at_square = self.board.board[new_row][new_column]
             if (
                 piece_at_square
                 and piece_at_square.colour != self.current_player_colour
-                or self.validate_en_passant(current_square, new_square)
+                or self.__validate_en_passant(current_square, new_square)
             ):
                 return new_square in piece.get_attacked_squares()
 
         return new_square in piece.generate_moves()
 
-    def is_move_blocked(self, current_square, new_square):
+    def __is_move_blocked(self, current_square, new_square):
         """
-        Checks if a move is blocked by another piece.
+        Checks if a move is blocked by another piece. This is done by checking
+        if there are any pieces in the squares between the current and new
+        squares.
         """
         current_row, current_column = current_square
         piece = self.board.board[current_row][current_column]
@@ -246,12 +255,12 @@ class Game:
         if isinstance(piece, Knight):
             return False
 
-        squares_passed = self.get_passed_squares(current_square, new_square)
+        squares_passed = self.__get_passed_squares(current_square, new_square)
         return any(
             [self.board.board[square[0]][square[1]] for square in squares_passed]
         )
 
-    def get_passed_squares(self, current_square, new_square):
+    def __get_passed_squares(self, current_square, new_square):
         """Returns the squares which a piece moves over when a move is made."""
 
         current_row, current_column = current_square
@@ -323,13 +332,15 @@ class Game:
         """
         Executes a move by moving the piece object's location in the board list
         """
-        if self.just_castled:  # Prevents move from being executed twice after castling
-            self.just_castled = False
+        # Prevents move from being executed twice after castling
+        if self.__just_castled:
+            self.__just_castled = False
             return
 
         current_row, current_column = current_square
         new_row, new_column = new_square
 
+        # Updates items in board list
         piece = self.board.board[current_row][current_column]
         piece_at_new_square = self.board.board[new_row][new_column]
 
@@ -338,6 +349,7 @@ class Game:
         piece.row = new_row
         piece.column = new_column
 
+        # Updates pieces currently on the board and pieces taken
         if piece_at_new_square:
             if piece_at_new_square.colour:
                 self.board.white_pieces.remove(piece_at_new_square)
@@ -346,18 +358,20 @@ class Game:
                 self.board.black_pieces.remove(piece_at_new_square)
                 self.board.black_pieces_taken.append(piece_at_new_square)
 
-        self.update_en_passant()
+        self.__update_en_passant()
 
+        # Checks if pawn should be promoted, or if it can be taken en passant
+        # promote_pawn only called when playing the game without a GUI.
         if isinstance(piece, Pawn):
             if self.current_player_colour:
                 if new_row == 0:
-                    # self.promote_pawn(piece)
+                    # self.__promote_pawn(piece)
                     pass
                 elif current_row == 6 and new_row == 4:
                     piece.en_passant_possible = True
             else:
                 if new_row == 7:
-                    # self.promote_pawn(piece)
+                    # self.__promote_pawn(piece)
                     pass
                 elif current_row == 1 and new_row == 3:
                     piece.en_passant_possible = True
@@ -371,11 +385,13 @@ class Game:
             else:
                 self.black_king_location = (new_row, new_column)
 
+        # Switches current player
         self.current_player_colour = not self.current_player_colour
 
-    def is_king_in_check(self):
+    def __is_king_in_check(self):
+
         """
-        Checks all rows, columns and diagonals leading out from the king and
+        Looks at all rows, columns and diagonals leading out from the king and
         checks if there are any opponent pieces attacking the king.
         """
         self.white_check = False
@@ -392,7 +408,7 @@ class Game:
             (1, 0),
             (0, -1),
             (0, 1),
-            # Bishop/Queen directions (diagonal lines):
+            # Bishop/Queen/Pawn directions (diagonal lines):
             (-1, -1),
             (-1, 1),
             (1, -1),
@@ -407,8 +423,12 @@ class Game:
                     piece = self.board.board[new_row][new_column]
                     if piece is None:
                         continue
+                    # If there is a piece of the same colour in that direction,
+                    # then it will block any attacks from pieces behind it
                     if piece.colour == self.current_player_colour:
                         break
+                    # The king is in check if any of these types of pieces are
+                    # found in the directions in which they attack.
                     if (0 <= i <= 3 and isinstance(piece, (Rook, Queen))) or (
                         4 <= i <= 7
                         and isinstance(piece, (Bishop, Queen))
@@ -426,6 +446,7 @@ class Game:
                             self.black_check = True
                 break
 
+        # Look for knight checks:
         knight_positions = [
             (2, 1),
             (2, -1),
@@ -462,6 +483,7 @@ class Game:
         else:
             pieces = self.board.black_pieces
 
+        # Check if there are any valid moves
         for piece in pieces:
             current_square = (piece.row, piece.column)
             moves = piece.generate_moves()
@@ -472,20 +494,22 @@ class Game:
                     return
 
         if self.current_player_colour:  # Current player is white
-            self.is_king_in_check()
+            self.__is_king_in_check()
+
             if self.white_check:
                 self.black_checkmate = True
             else:
                 self.stalemate = True
 
         else:  # Current player is black
-            self.is_king_in_check()
+            self.__is_king_in_check()
+
             if self.black_check:
                 self.white_checkmate = True
             else:
                 self.stalemate = True
 
-    def validate_castling_move(self, current_square, new_square):
+    def __validate_castling_move(self, current_square, new_square):
         """
         Determines whether a castling move is valid. The move is invalid if
         there are any pieces between the king and rook, if either the king or
@@ -509,8 +533,10 @@ class Game:
             passed_squares_columns = list(range(current_column, new_column - 1, -1))
             new_rook_column = new_column + 1
 
+        # Move is invalid if it is blocked, either the king or rook have moved
+        # or if king is in check
         if (
-            self.is_move_blocked(current_square, (current_row, end_column))
+            self.__is_move_blocked(current_square, (current_row, end_column))
             or king_piece.has_moved
             or rook_piece is None
             or rook_piece.has_moved
@@ -527,7 +553,8 @@ class Game:
             if self.current_player_colour:  # The current player is white
                 self.white_king_location = (current_row, column)
 
-                self.is_king_in_check()
+                self.__is_king_in_check()
+
                 if self.white_check:
                     valid = False
 
@@ -536,7 +563,8 @@ class Game:
             else:
                 self.black_king_location = (current_row, column)
 
-                self.is_king_in_check()
+                self.__is_king_in_check()
+
                 if self.black_check:
                     valid = False
 
@@ -551,12 +579,15 @@ class Game:
             self.execute_move(
                 (current_row, rook_piece.column), (current_row, new_rook_column)
             )
-            self.just_castled = True
+            self.__just_castled = True
             return True
         return False
 
-    def promote_pawn(self, pawn):
-        """Promotes the pawn to a new piece when it reaches the last row"""
+    def __promote_pawn(self, pawn):
+        """
+        Promotes the pawn to a new piece when it reaches the last row.
+        This method is only used when playing the game without a GUI.
+        """
         row = pawn.row
         column = pawn.column
         colour = pawn.colour
@@ -582,7 +613,7 @@ class Game:
 
         self.board.board[row][column] = new_piece
 
-    def update_en_passant(self):
+    def __update_en_passant(self):
         """
         Sets the 'en passant possible' attribute for all pawns to false
         after a move is made.
@@ -596,7 +627,7 @@ class Game:
             if isinstance(piece, Pawn):
                 piece.en_passant_possible = False
 
-    def validate_en_passant(self, current_square, new_square):
+    def __validate_en_passant(self, current_square, new_square):
         """Checks if en passant move is valid"""
         current_row, current_column = current_square
         new_row, new_column = new_square
@@ -608,41 +639,45 @@ class Game:
         ):
             return False
 
+        # Get pawn that would be captured
         en_passant_piece = self.board.board[current_row][new_column]
 
         if isinstance(en_passant_piece, Pawn):
             if en_passant_piece.en_passant_possible:
-                self.en_passant_move = True
+                self.__en_passant_move = True
                 if self.validate_move(current_square, new_square):
+                    # If AI is playing, you do not want the move to executed
+                    # while searching for valid moves
                     if self.current_player_colour == self.ai_colour:
                         return True
-                    self.execute_en_passant_move(
+                    self.__execute_en_passant_move(
                         current_square, new_square, en_passant_piece
                     )
                     return True
 
         return False
 
-    def execute_en_passant_move(self, current_square, new_square, piece):
+    def __execute_en_passant_move(self, current_square, new_square, piece):
         """Executes an en passant move."""
         current_row, _ = current_square
         _, new_column = new_square
 
+        # Remove captured piece from board
         self.board.board[current_row][new_column] = None
-        if self.current_player_colour:
+        if self.current_player_colour: # Player is white
             self.board.black_pieces.remove(piece)
             self.board.black_pieces_taken.append(piece)
-        else:
+        else: # Player is black
             self.board.white_pieces.remove(piece)
             self.board.white_pieces_taken.append(piece)
         self.execute_move(current_square, new_square)
 
     def check_draw(self):
         """
-        Checks if the game should be a draw due to both teams
-        having insufficient material to result in a checkmate.
-        This is true for King vs King, King and Knight vs King,
-        and King and Bishop vs King."""
+        Checks if the game should be a draw due to both teams having 
+        insufficient material to result in a checkmate. This is true for
+        King vs King, King + Knight vs King, and King + Bishop vs King.
+        """
 
         opponent_pieces = []
         if len(self.board.white_pieces) == 1:  # white only has the king
@@ -665,9 +700,9 @@ class Game:
 
     def get_all_moves(self):
         """
-        Returns list of all moves (not validated). This is done by
-        iterating through each piece on the board and generating
-        moves for each piece."""
+        Returns list of all moves (not validated). This is done by iterating
+        through each piece on the board and generating moves for each piece.
+        """
 
         moves = []
         for piece in self.board.white_pieces + self.board.black_pieces:
@@ -697,8 +732,8 @@ class Pawn(Piece):
     def __init__(self, row, column, colour):
         super().__init__(row, column, 1, colour)
         self.has_moved = False
-        self.direction = 1 if self.colour else -1
         self.en_passant_possible = False
+        self.__direction = 1 if self.colour else -1
 
     def generate_moves(self):
         """
@@ -707,9 +742,9 @@ class Pawn(Piece):
         """
         moves = []
 
-        moves.append((self.row - self.direction, self.column))
+        moves.append((self.row - self.__direction, self.column))
         if not self.has_moved:
-            moves.append((self.row - 2 * self.direction, self.column))
+            moves.append((self.row - 2 * self.__direction, self.column))
 
         return moves
 
@@ -719,7 +754,7 @@ class Pawn(Piece):
         piece.
         """
         moves = []
-        new_row = self.row - self.direction
+        new_row = self.row - self.__direction
         if 0 <= new_row < 8:
             if self.column > 0:
                 moves.append((new_row, self.column - 1))
@@ -730,8 +765,8 @@ class Pawn(Piece):
 
     def __str__(self):
         if self.colour:
-            return "♙"
-        return "♟︎"
+            return "P"
+        return "P'"
 
 
 class Bishop(Piece):
@@ -762,8 +797,8 @@ class Bishop(Piece):
 
     def __str__(self):
         if self.colour:
-            return "♗"
-        return "♝"
+            return "B"
+        return "B'"
 
 
 class Knight(Piece):
@@ -796,8 +831,8 @@ class Knight(Piece):
 
     def __str__(self):
         if self.colour:
-            return "♘"
-        return "♞"
+            return "N"
+        return "N'"
 
 
 class Rook(Piece):
@@ -825,8 +860,8 @@ class Rook(Piece):
 
     def __str__(self):
         if self.colour:
-            return "♖"
-        return "♜"
+            return "R"
+        return "R'"
 
 
 class Queen(Piece):
@@ -865,13 +900,13 @@ class Queen(Piece):
 
     def __str__(self):
         if self.colour:
-            return "♕"
-        return "♛"
+            return "Q"
+        return "Q'"
 
 
 class King(Piece):
     """
-    Piece initialised with value 0. If this piece is attacked and it has no
+    Piece initialised with value 0. If this piece is attacked and there are no
     legal moves, the game is over.
     """
 
@@ -903,8 +938,8 @@ class King(Piece):
 
     def __str__(self):
         if self.colour:
-            return "♔"
-        return "♚"
+            return "K"
+        return "K'"
 
 
 if __name__ == "__main__":
